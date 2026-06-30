@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6b5cff" />
+  <title>一呼吸 β — 相談AI MVP</title>
+  <style>
+    :root {
+      --bg: #f7f6ff;
+      --surface: #ffffff;
+      --surface-soft: #f0eeff;
+      --text: #1f1d2b;
+      --muted: #77738e;
+      --primary: #6b5cff;
+      --primary-dark: #5143de;
+      --accent: #ffb96a;
+      --border: #e8e5f3;
+      --danger: #e85b71;
+      --shadow: 0 10px 30px rgba(62, 47, 130, 0.10);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(211, 206, 255, .65), transparent 30%),
+        radial-gradient(circle at 95% 30%, rgba(255, 220, 170, .35), transparent 26%),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+      min-height: 100vh;
+      padding-bottom: 96px;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 18px 16px 32px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark {
+      width: 42px; height: 42px; border-radius: 15px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), #9b86ff);
+      color: white; box-shadow: 0 8px 18px rgba(107,92,255,.25);
+      font-size: 20px;
+    }
+    .brand h1 { font-size: 20px; margin: 0; letter-spacing: .01em; }
+    .brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .badge {
+      border: 1px solid #ddd8ff; background: #f1efff; color: #5143de;
+      border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 700;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fade .22s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .hero {
+      background: linear-gradient(135deg, #fff 0%, #f3f1ff 100%);
+      border: 1px solid rgba(107,92,255,.12);
+      border-radius: 26px; padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::after {
+      content: ""; position: absolute; width: 160px; height: 160px;
+      border-radius: 50%; right: -65px; top: -70px;
+      background: rgba(255, 189, 105, .22);
+    }
+    .eyebrow { color: var(--primary); font-size: 12px; font-weight: 800; letter-spacing: .06em; margin-bottom: 8px; }
+    .hero h2 { margin: 0; font-size: clamp(23px, 6vw, 31px); line-height: 1.25; max-width: 560px; position: relative; }
+    .hero p { color: var(--muted); font-size: 14px; line-height: 1.7; margin: 11px 0 0; max-width: 570px; position: relative; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 17px; box-shadow: 0 6px 18px rgba(46, 38, 98, .045); margin-bottom: 14px;
+    }
+    .card-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; font-weight: 800; margin-bottom: 13px; }
+    .subtext { color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .category-grid, .quick-grid { display: grid; gap: 9px; }
+    .category-grid { grid-template-columns: repeat(3, 1fr); }
+    .quick-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .choice, .quick {
+      text-align: left; border: 1px solid var(--border); background: white; border-radius: 16px;
+      padding: 12px; color: var(--text); transition: .18s ease;
+    }
+    .choice:hover, .quick:hover { border-color: #c8c0ff; transform: translateY(-1px); }
+    .choice.active { color: white; border-color: var(--primary); background: var(--primary); box-shadow: 0 6px 14px rgba(107,92,255,.22); }
+    .choice b, .quick b { display: block; font-size: 13px; }
+    .choice span, .quick span { display: block; font-size: 11px; line-height: 1.4; margin-top: 3px; color: var(--muted); }
+    .choice.active span { color: rgba(255,255,255,.8); }
+
+    .input-wrap { position: relative; }
+    textarea {
+      display: block; width: 100%; resize: vertical; min-height: 130px; border: 1px solid var(--border);
+      background: #fcfcff; border-radius: 18px; padding: 14px 14px 42px; line-height: 1.65; color: var(--text); outline: none;
+    }
+    textarea:focus { border-color: #b9b1ff; box-shadow: 0 0 0 3px rgba(107,92,255,.10); }
+    .hint { position: absolute; right: 12px; bottom: 11px; font-size: 11px; color: var(--muted); }
+
+    .primary-btn, .ghost-btn, .small-btn {
+      border: none; border-radius: 14px; font-weight: 800; transition: .18s ease;
+    }
+    .primary-btn { width: 100%; padding: 14px 16px; color: white; background: linear-gradient(135deg, var(--primary), #8170ff); box-shadow: 0 10px 18px rgba(107,92,255,.22); margin-top: 11px; }
+    .primary-btn:hover { transform: translateY(-1px); background: linear-gradient(135deg, var(--primary-dark), #7565f6); }
+    .ghost-btn { padding: 10px 12px; background: #f4f2ff; color: var(--primary-dark); }
+    .small-btn { padding: 8px 10px; background: #f6f5ff; color: var(--primary-dark); font-size: 12px; }
+
+    .advice { display: none; }
+    .advice.visible { display: block; }
+    .advice-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
+    .advice-section:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .advice-label { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 13px; margin-bottom: 7px; }
+    .advice p, .advice li { color: #3d3a4e; font-size: 14px; line-height: 1.72; }
+    .advice p { margin: 0; }
+    .advice ul { margin: 0; padding-left: 20px; }
+    .callout { background: #fff9ec; border: 1px solid #ffe5b6; padding: 12px; border-radius: 14px; color: #74480b; font-size: 13px; line-height: 1.65; }
+    .quote { background: #f3f1ff; border-left: 4px solid var(--primary); padding: 12px; border-radius: 0 13px 13px 0; font-size: 13px; line-height: 1.65; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid #dedaff; color: var(--primary-dark); background: #f8f7ff; padding: 8px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+
+    .bottom-nav {
+      position: fixed; z-index: 20; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: min(100%, 760px); padding: 10px 12px 16px;
+      background: linear-gradient(to top, rgba(247,246,255,.98) 75%, rgba(247,246,255,0));
+    }
+    .nav-shell {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 8px;
+      background: rgba(255,255,255,.94); border: 1px solid rgba(220,216,241,.9); box-shadow: var(--shadow); border-radius: 20px; backdrop-filter: blur(10px);
+    }
+    .nav-btn { border: none; background: transparent; padding: 8px 5px; border-radius: 13px; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .nav-btn span { display: block; font-size: 18px; margin-bottom: 2px; }
+    .nav-btn.active { color: var(--primary-dark); background: #f0eeff; }
+
+    .today-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 13px; }
+    .fortune { background: linear-gradient(145deg, #f5efff, #fff); border: 1px solid #e6dafd; }
+    .fortune-result { font-size: 25px; font-weight: 900; color: var(--primary-dark); margin: 10px 0 6px; }
+    .fortune p { color: #524b68; font-size: 13px; line-height: 1.7; margin: 0; }
+    .mini-note { background: linear-gradient(145deg, #fffaf1, #fff); border: 1px solid #ffe8bc; }
+
+    .notebook-empty { text-align: center; padding: 28px 12px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .rule-item { border: 1px solid var(--border); padding: 13px; border-radius: 15px; margin-bottom: 9px; display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+    .rule-item p { margin: 0; font-size: 13px; line-height: 1.6; }
+    .rule-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .delete-btn { border: none; background: #fff0f2; color: var(--danger); border-radius: 9px; padding: 7px 8px; font-size: 11px; font-weight: 800; }
+
+    .profile-row { margin-bottom: 14px; }
+    .profile-row label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 7px; }
+    .profile-row input[type="text"] { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; outline: none; background: #fcfcff; }
+    .trait-list { display: grid; gap: 9px; }
+    .trait { display: flex; gap: 10px; align-items: flex-start; padding: 11px; border: 1px solid var(--border); border-radius: 14px; background: #fcfcff; }
+    .trait input { margin-top: 3px; accent-color: var(--primary); }
+    .trait b { font-size: 13px; display: block; }
+    .trait small { display: block; color: var(--muted); font-size: 11px; line-height: 1.45; margin-top: 2px; }
+
+    .notice { font-size: 11px; color: var(--muted); line-height: 1.65; padding: 0 2px; }
+    .danger-card { background: #fff5f6; border: 1px solid #ffd6dc; color: #7f1f34; }
+
+    @media (max-width: 520px) {
+      .today-grid { grid-template-columns: 1fr; }
+      .hero h2 { max-width: 360px; }
+      .quick-grid { grid-template-columns: 1fr; }
+      .category-grid { gap: 7px; }
+      .choice { padding: 11px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">⏸</div>
+        <div>
+          <h1>一呼吸 <span class="badge">β</span></h1>
+          <small>感情で後悔する前に、言葉を整える</small>
+        </div>
+      </div>
+      <button class="ghost-btn" id="resetData">リセット</button>
+    </header>
+
+    <section id="consult" class="tab-panel active">
+      <div class="hero">
+        <div class="eyebrow">相談がメイン</div>
+        <h2>今、何にモヤモヤしてる？</h2>
+        <p>あるあるで気持ちを受け止めてから、事実・感情・次の一手を一緒に整理する。性格タイプはあくまで補足として使うよ。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>どの場面の悩み？</span><span class="subtext" id="selectedCategoryText">恋愛</span></div>
+        <div class="category-grid" id="categoryGrid">
+          <button class="choice active" data-category="love"><b>💗 恋愛</b><span>返信・不安・伝え方</span></button>
+          <button class="choice" data-category="friend"><b>🫶 友人</b><span>距離感・モヤモヤ</span></button>
+          <button class="choice" data-category="work"><b>💼 仕事</b><span>上司・断り方・相談</span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>よくある悩みから選ぶ</span><span class="subtext">タップで入力欄に入る</span></div>
+        <div class="quick-grid" id="quickGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>そのまま話して</span><span class="subtext">個人情報は書かないでね</span></div>
+        <div class="input-wrap">
+          <textarea id="consultInput" maxlength="600" placeholder="例：既読はついたけど3時間返ってこない。追いLINEしたいけど重いと思われそうで怖い。"></textarea>
+          <span class="hint"><span id="charCount">0</span>/600</span>
+        </div>
+        <button class="primary-btn" id="getAdvice">一呼吸して整理する</button>
+      </div>
+
+      <div class="card advice" id="adviceCard">
+        <div class="card-title"><span>一緒に整理したこと</span><button class="small-btn" id="saveRuleBtn">自分ルールに保存</button></div>
+        <div id="adviceContent"></div>
+      </div>
+
+      <div class="card danger-card" id="safetyCard" style="display:none;">
+        <div class="card-title"><span>今は安全を優先してね</span></div>
+        <p class="subtext" style="color:#7f1f34; font-size:13px;">自分を傷つけたい気持ち、暴力、脅し、つきまといなどがある時は、ひとりで抱え込まず、近くの信頼できる人や地域の緊急・相談窓口につながってください。このアプリは緊急対応や診断の代わりにはなれません。</p>
+      </div>
+    </section>
+
+    <section id="today" class="tab-panel">
+      <div class="hero">
+        <div class="eyebrow">サブ機能</div>
+        <h2>今日は、ちょっとだけ整える日。</h2>
+        <p>恋みくじ・占い・豆知識は、相談を開くきっかけ。答えを決めるものではなく、行動のヒントとして楽しむ。</p>
+      </div>
+      <div class="today-grid">
+        <div class="card fortune">
+          <div class="card-title"><span>💌 今日の恋みくじ</span><button class="small-btn" id="refreshFortune">引き直す</button></div>
+          <div class="fortune-result" id="fortuneTitle">一呼吸吉</div>
+          <p id="fortuneText"></p>
+          <button class="ghost-btn" style="margin-top:14px;" data-go-consult>返信前に相談する</button>
+        </div>
+        <div class="card mini-note">
+          <div class="card-title"><span>🧠 1分豆知識</span><button class="small-btn" id="refreshTip">更新</button></div>
+          <p id="tipText" style="margin:0; font-size:13px; line-height:1.75;"></p>
+          <button class="ghost-btn" style="margin-top:14px;" id="saveTip">ノートに保存</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>今週のテーマ</span><span class="subtext">エンタメ・ヒント表示</span></div>
+        <div class="chips">
+          <span class="chip">言いたいことを希望で伝える</span>
+          <span class="chip">返信の速さ＝愛情ではない</span>
+          <span class="chip">怒りは一次感情じゃないこともある</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="notebook" class="tab-panel">
+      <div class="hero">
+        <div class="eyebrow">自分専用の攻略ノート</div>
+        <h2>うまくいった言い方を、次にも使える形に。</h2>
+        <p>相談で決めた自分ルールや、保存した豆知識が積み上がる。必要なときに、自分の答えを見つけられる。</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>自分ルール</span><span class="subtext" id="ruleCount">0件</span></div>
+        <div id="ruleList"></div>
+      </div>
+    </section>
+
+    <section id="profile" class="tab-panel">
+      <div class="hero">
+        <div class="eyebrow">補足プロフィール</div>
+        <h2>タイプで決めつけず、あなたの“相談の癖”を参考にする。</h2>
+        <p>MBTIや恋愛タイプを知っている人は任意で入力できる。公式診断の代わりではなく、相談の前置きとして少し使うだけ。</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>任意のタイプ情報</span><span class="subtext">相談の主役にはしない</span></div>
+        <div class="profile-row">
+          <label for="mbtiInput">MBTIなど（知っている人だけ）</label>
+          <input id="mbtiInput" type="text" maxlength="20" placeholder="例：ENFJ" />
+        </div>
+        <div class="profile-row">
+          <label for="loveTypeInput">恋愛タイプなど（知っている人だけ）</label>
+          <input id="loveTypeInput" type="text" maxlength="40" placeholder="例：自分で知っている恋愛タイプ名" />
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>相談スタイルチェック</span><span class="subtext">心理学の考え方を参考にした補助プロフィール</span></div>
+        <div class="trait-list" id="traitList"></div>
+        <button class="primary-btn" id="saveProfile">プロフィールを保存</button>
+      </div>
+      <p class="notice">※ 医療・心理診断ではありません。結果は、今の傾向を整理するための参考情報です。相談内容は端末内のブラウザ保存を使うデモ仕様です。</p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <div class="nav-shell">
+      <button class="nav-btn active" data-tab="consult"><span>💬</span>相談</button>
+      <button class="nav-btn" data-tab="today"><span>☀️</span>今日</button>
+      <button class="nav-btn" data-tab="notebook"><span>📒</span>ノート</button>
+      <button class="nav-btn" data-tab="profile"><span>👤</span>プロフィール</button>
+    </div>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = 'ippuku-mvp-v1';
+    const categoryNames = { love: '恋愛', friend: '友人', work: '仕事' };
+    let category = 'love';
+
+    const quickPrompts = {
+      love: [
+        ['既読無視が不安', '追いLINEしていいか迷う'],
+        ['不満を伝えたい', '重いと思われずに言いたい'],
+        ['相手の気持ちが不安', '考えすぎを止めたい'],
+        ['別れ話・距離感', '傷つけずに話したい']
+      ],
+      friend: [
+        ['雑に扱われた気がする', '怒るほどでもないけどモヤモヤ'],
+        ['誘いを断りたい', '空気を悪くしたくない'],
+        ['距離を置きたい', '嫌いではないけど疲れる'],
+        ['言い返したくなった', 'ケンカにしたくない']
+      ],
+      work: [
+        ['上司に言いづらい', '相談・お願いを伝えたい'],
+        ['頼まれごとを断れない', '抱え込みすぎてしんどい'],
+        ['注意されて落ち込む', '引きずらずに整理したい'],
+        ['同僚にモヤモヤ', '角が立たない伝え方を知りたい']
+      ]
+    };
+
+    const traits = [
+      ['quickReply', '不安になると、早く答えを確かめたくなる', '返信がない時間に、最悪の想像をしやすい'],
+      ['holdBack', '言いたいことを飲み込みやすい', '空気を悪くしたくなくて、あとからモヤモヤを溜めがち'],
+      ['strongWords', '感情が高いと、言葉が強くなりやすい', '怒りや焦りで、送ったあとに後悔することがある'],
+      ['overAdapt', '相手に合わせすぎやすい', '断るより、自分が我慢する方を選びやすい'],
+      ['overthink', '相手の気持ちを考えすぎやすい', '事実より想像が大きくなって疲れやすい'],
+      ['avoidTalk', '問題があると、話し合いを先延ばしにしやすい', '関係が悪くなるのが怖くて、何も言えないことがある']
+    ];
+
+    const fortunes = [
+      ['一呼吸吉', '今日は、返信の早さより言葉のやわらかさを大事にすると◎。気になることがあっても、最初の一文を少し整えてから送ろう。'],
+      ['待ち吉', '答えを急がない方が、関係が整いやすい日。相手の反応を待つ時間に、自分の予定を一つ進めてみて。'],
+      ['伝達吉', '言いたいことは、責める言葉ではなく“こうしてくれると嬉しい”で伝えると届きやすい日。'],
+      ['自分時間吉', '相手の気持ちを考えすぎて苦しくなったら、自分が安心できる予定を先に入れてみよう。'],
+      ['整理吉', 'モヤモヤは、まず事実と想像に分けると小さくなる。送る前に一度、言いたいことをメモに出してみて。']
+    ];
+    const tips = [
+      '怒りの下には、不安・寂しさ・分かってほしかった気持ちが隠れていることがある。怒っている時ほど「本当は何が悲しかった？」を考えると伝え方が変わる。',
+      '「なんで○○してくれないの？」より、「○○してくれると安心する」の方が、相手は防御的になりにくい。これは自分の希望を主語にする伝え方のコツ。',
+      '既読がついたことは事実。でも「冷めた」「嫌われた」はまだ想像。事実と予想を分けるだけで、不安に飲まれにくくなる。',
+      '断る時は、理由を盛りすぎなくていい。「今回は難しい、ごめんね」で十分なことも多い。相手のがっかりまで全部背負わなくて大丈夫。',
+      '不安な時ほど、相手の気持ちを当てにいくより、自分が何を確認したいのかをはっきりさせると、会話がこじれにくい。'
+    ];
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { profile: {}, rules: [] }; }
+      catch { return { profile: {}, rules: [] }; }
+    }
+    function saveState(next) { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); }
+    let state = loadState();
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+    function seededIndex(n, salt = 0) {
+      const d = new Date();
+      const base = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate() + salt;
+      return base % n;
+    }
+    function getProfileNotes() {
+      const p = state.profile || {};
+      const map = {
+        quickReply: '答えを早く確かめたくなる傾向があるなら、今は“送ること”より“落ち着いて確認すること”を優先した方が後悔しにくいかも。',
+        holdBack: '言いたいことを飲み込みやすいなら、我慢するか爆発するかの二択にせず、小さく伝える言い方を選ぶのが合いそう。',
+        strongWords: '感情が強い時に言葉が強くなりやすいなら、今日は送信前に一度下書きへ逃がすだけでも効果がある。',
+        overAdapt: '相手に合わせすぎやすいなら、“相手がどう思うか”と同じくらい“自分はどうしたいか”も大事にしていい。',
+        overthink: '相手の気持ちを考えすぎやすいなら、予想を増やすより、確認したいことを一文にする方が気持ちが落ち着きやすい。',
+        avoidTalk: '話し合いを先延ばしにしやすいなら、大きな結論ではなく「今少し気になってることがある」と入口だけ作るのがおすすめ。'
+      };
+      const active = Object.keys(map).filter(k => p[k]);
+      return active.length ? map[active[0]] : 'タイプや傾向はあくまで補足。今回は、今起きていることと気持ちをいちばん大事にして考えよう。';
+    }
+    function hasRisk(text) {
+      const keywords = ['死にたい','消えたい','自殺','自分を傷つけ','殴られ','暴力','脅され','つきまとい','ストーカー'];
+      return keywords.some(k => text.includes(k));
+    }
+
+    function getTemplates(cat, text) {
+      const lower = text.toLowerCase();
+      const common = {
+        fact: '今わかっている事実と、頭の中で広がっている想像を分けるだけでも、次の言葉が少し選びやすくなる。',
+        action: ['今は送らず、10〜30分だけ別のことをする', '責めずに確認する一文だけ送る', '自分が本当に望んでいることを一度メモにする'],
+        line: '忙しかったら全然大丈夫だよ。落ち着いたら、また話せたら嬉しいな。'
+      };
+      if (cat === 'love') {
+        if (/(既読|返信|line|ライン|追い)/i.test(lower)) return {
+          aru: '既読はついてるのに返ってこないと、「忙しいだけかも」って思いたいのに、急に嫌われた気がしてくるやつあるあるだよね。',
+          facts: '事実：返信がまだ来ていない。\n想像：冷めた・嫌われた・軽く扱われているかもしれない。\n感情：不安、寂しさ、少しの怒り。',
+          lens: '不安が強い時は、相手の気持ちを予想し続けるより、「自分は何を確認できたら安心する？」を言葉にすると整理しやすい。',
+          action: ['今日は追いLINEせず、返信を待つ時間を決める', '軽く一度だけ、相手の状況を気づかう形で送る', '返信が遅いこと自体が続いて困るなら、落ち着いた時に希望として伝える'],
+          line: '忙しかったら全然大丈夫だよ。落ち着いたら返事もらえたら嬉しい！'
+        };
+        if (/(別れ|距離|冷め|不満|重い)/i.test(lower)) return {
+          aru: '重いって思われたくなくて我慢する。でも我慢してる自分にもだんだんイラつく、あるある。',
+          facts: '事実：相手との間で気になることがある。\n解釈：自分だけ大事にされていないかもしれない。\n望み：安心したい、雑に扱われたくない、話し合いたい。',
+          lens: '不満を伝える時は、「あなたが悪い」より「私はこう感じて、こうしてくれると安心する」で話すと、ケンカになりにくい。',
+          action: ['感情が強い今日は結論を出さず、何が嫌だったかを一つに絞る', '短く「話せる時間ある？」と入口だけ作る', '責める言葉を希望の言葉に言い換える'],
+          line: '責めたいわけじゃないんだけど、最近少し不安になることがあって。落ち着いて話せる時間があったら嬉しい。'
+        };
+      }
+      if (cat === 'friend') {
+        if (/(断|誘い|無理|疲れ)/i.test(lower)) return {
+          aru: '断りたいのに、相手ががっかりする顔を想像して自分が我慢しちゃうやつ、あるあるだよね。',
+          facts: '事実：今の自分には余裕が少ない、または行きたくない理由がある。\n思い込み：断ったら嫌われるかもしれない。\n望み：関係は大事にしつつ、自分の時間も守りたい。',
+          lens: '境界線は相手を拒絶するためではなく、関係を長く続けるために作るもの。理由を盛りすぎず、短く伝えても大丈夫。',
+          action: ['今回は難しいと短く断る', '代わりの日を出す必要があるか考える', '断った後に相手の気分まで背負わない'],
+          line: '誘ってくれて嬉しい！でも今回はちょっと難しそう。また余裕ある時にぜひ行きたい。'
+        };
+        return {
+          aru: '仲いいからこそ、雑に扱われた感じがすると、怒るほどでもないのにずっと引っかかるやつあるある。',
+          facts: '事実：相手の言動で引っかかったことがある。\n解釈：自分を軽く見ているのかもしれない。\n感情：寂しさ、悔しさ、怒り。',
+          lens: '友達とのモヤモヤは、相手の人格を判断する前に「どの行動が嫌だったか」を具体的にするだけで伝えやすくなる。',
+          action: ['今日は一度距離を取って感情を落ち着ける', '次に会う時に、気になった行動だけを短く伝える', '毎回同じことが続くなら、距離感を少し調整する'],
+          line: 'この前のこと、ちょっとだけ気になってて。私はああいう言い方だと少し寂しくなるかも。'
+        };
+      }
+      if (cat === 'work') {
+        if (/(断|無理|頼ま|抱え)/i.test(lower)) return {
+          aru: '頼まれると断れなくて、とりあえず引き受けてから自分だけ苦しくなるやつ、職場あるある。',
+          facts: '事実：今の仕事量に対して、新しい依頼が来ている。\n解釈：断ると評価が下がるかもしれない。\n望み：期待には応えたいけど、無理はしたくない。',
+          lens: '仕事の断り方は「できません」だけじゃなく、「今これを優先しているので、期限を調整できれば可能です」と選択肢で返すと伝わりやすい。',
+          action: ['今抱えているタスクを一度見える化する', '優先順位を確認してもらう', '期限や範囲を調整して引き受けるか決める'],
+          line: '今○○を優先して進めています。こちらも対応する場合、どちらを先に進めるのがよさそうでしょうか？'
+        };
+        return {
+          aru: '言いたいことはあるのに、職場の空気を悪くしたくなくて飲み込んで、あとで一人だけ疲れるやつあるある。',
+          facts: '事実：相談・確認したいことがある。\n解釈：言い方を間違えると印象が悪くなるかもしれない。\n望み：状況を良くしたい、無理なく働きたい。',
+          lens: '仕事では、感情より「事実 → 困っていること → 相談したいこと」の順にすると、相手も受け取りやすい。',
+          action: ['伝えたいことを一文の結論にする', '具体例を一つだけ用意する', '相手に求めることを明確にして相談する'],
+          line: '少し相談したいことがあります。今の進め方だと○○が難しくて、△△の形にできると助かります。'
+        };
+      }
+      return {
+        aru: common.aru || '言い返したい気持ちと、関係を壊したくない気持ちが両方ある時って、頭の中がずっと忙しいやつあるある。',
+        facts: common.fact,
+        lens: '今は結論を急がず、「何があったか」「どう感じたか」「本当はどうしたいか」の順に分けると、次の言葉が見えてくる。',
+        action: common.action,
+        line: common.line
+      };
+    }
+
+    function renderAdvice() {
+      const text = document.getElementById('consultInput').value.trim();
+      const adviceCard = document.getElementById('adviceCard');
+      const safetyCard = document.getElementById('safetyCard');
+      if (!text) { document.getElementById('consultInput').focus(); return; }
+      safetyCard.style.display = hasRisk(text) ? 'block' : 'none';
+      const t = getTemplates(category, text);
+      const profileText = getProfileNotes();
+      const factsHtml = escapeHtml(t.facts).replace(/\n/g, '<br>');
+      const actionHtml = t.action.map(x => `<li>${escapeHtml(x)}</li>`).join('');
+      const safeText = escapeHtml(text.length > 180 ? text.slice(0, 180) + '…' : text);
+      const content = `
+        <div class="advice-section">
+          <div class="advice-label">🫶 あるある</div>
+          <p>${escapeHtml(t.aru)}</p>
+        </div>
+        <div class="advice-section">
+          <div class="advice-label">🧩 いま起きていること</div>
+          <div class="callout">${factsHtml}</div>
+        </div>
+        <div class="advice-section">
+          <div class="advice-label">🧠 心理学的な見方</div>
+          <p>${escapeHtml(t.lens)}</p>
+        </div>
+        <div class="advice-section">
+          <div class="advice-label">👤 あなたの傾向は“補足”として</div>
+          <p>${escapeHtml(profileText)}</p>
+        </div>
+        <div class="advice-section">
+          <div class="advice-label">🧭 次の一手</div>
+          <ul>${actionHtml}</ul>
+        </div>
+        <div class="advice-section">
+          <div class="advice-label">💬 そのまま使える一文</div>
+          <div class="quote">${escapeHtml(t.line)}</div>
+        </div>
+        <div class="advice-section">
+          <div class="advice-label">✍️ 今日の相談メモ</div>
+          <p class="subtext">「${safeText}」について、感情を急いで解決するより、事実・望み・言い方に分けて考えたよ。</p>
+        </div>`;
+      document.getElementById('adviceContent').innerHTML = content;
+      adviceCard.classList.add('visible');
+      window.scrollTo({ top: adviceCard.offsetTop - 10, behavior: 'smooth' });
+    }
+
+    function saveRule() {
+      const text = document.getElementById('consultInput').value.trim();
+      if (!text) return;
+      const template = getTemplates(category, text);
+      const rule = category === 'love'
+        ? '不安な時は、送る前に10分置いて「私は何を確認したい？」を考える。'
+        : category === 'friend'
+          ? 'モヤモヤした時は、相手の人格ではなく“気になった行動”を一つだけ伝える。'
+          : '頼まれごとは、即答せず、優先順位と期限を確認してから返す。';
+      const exists = state.rules.some(r => r.text === rule);
+      if (!exists) {
+        state.rules.unshift({ text: rule, type: categoryNames[category], createdAt: new Date().toLocaleDateString('ja-JP') });
+        saveState(state); renderRules();
+      }
+      document.getElementById('saveRuleBtn').textContent = '保存しました';
+      setTimeout(() => document.getElementById('saveRuleBtn').textContent = '自分ルールに保存', 1300);
+    }
+
+    function renderRules() {
+      const root = document.getElementById('ruleList');
+      const count = state.rules.length;
+      document.getElementById('ruleCount').textContent = `${count}件`;
+      if (!count) {
+        root.innerHTML = `<div class="notebook-empty">まだルールはないよ。<br>相談のあとに「自分ルールに保存」を押すと、次の自分に残せる。</div>`;
+        return;
+      }
+      root.innerHTML = state.rules.map((r, i) => `
+        <div class="rule-item">
+          <div><p>${escapeHtml(r.text)}</p><div class="rule-meta">${escapeHtml(r.type)} · ${escapeHtml(r.createdAt)}</div></div>
+          <button class="delete-btn" data-delete-rule="${i}">消す</button>
+        </div>`).join('');
+      root.querySelectorAll('[data-delete-rule]').forEach(btn => btn.addEventListener('click', () => {
+        state.rules.splice(Number(btn.dataset.deleteRule), 1); saveState(state); renderRules();
+      }));
+    }
+
+    function renderQuick() {
+      const root = document.getElementById('quickGrid');
+      root.innerHTML = quickPrompts[category].map(([title, sub]) => `<button class="quick" data-prompt="${escapeHtml(title + '。' + sub)}"><b>${escapeHtml(title)}</b><span>${escapeHtml(sub)}</span></button>`).join('');
+      root.querySelectorAll('[data-prompt]').forEach(btn => btn.addEventListener('click', () => {
+        document.getElementById('consultInput').value = btn.dataset.prompt;
+        updateCount();
+        document.getElementById('consultInput').focus();
+      }));
+    }
+
+    function renderTraits() {
+      const root = document.getElementById('traitList');
+      root.innerHTML = traits.map(([id, label, desc]) => `
+        <label class="trait"><input type="checkbox" id="${id}" ${state.profile?.[id] ? 'checked' : ''}/><span><b>${label}</b><small>${desc}</small></span></label>`).join('');
+      document.getElementById('mbtiInput').value = state.profile?.mbti || '';
+      document.getElementById('loveTypeInput').value = state.profile?.loveType || '';
+    }
+    function saveProfile() {
+      const profile = {
+        mbti: document.getElementById('mbtiInput').value.trim(),
+        loveType: document.getElementById('loveTypeInput').value.trim()
+      };
+      traits.forEach(([id]) => profile[id] = document.getElementById(id).checked);
+      state.profile = profile; saveState(state);
+      const btn = document.getElementById('saveProfile'); btn.textContent = '保存しました';
+      setTimeout(() => btn.textContent = 'プロフィールを保存', 1300);
+    }
+
+    function renderFortune(salt = 0) {
+      const [title, text] = fortunes[seededIndex(fortunes.length, salt)];
+      document.getElementById('fortuneTitle').textContent = title;
+      document.getElementById('fortuneText').textContent = text;
+    }
+    function renderTip(salt = 0) { document.getElementById('tipText').textContent = tips[seededIndex(tips.length, salt + 7)]; }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.toggle('active', el.id === tab));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function updateCount() { document.getElementById('charCount').textContent = document.getElementById('consultInput').value.length; }
+
+    // Events
+    document.getElementById('categoryGrid').addEventListener('click', e => {
+      const btn = e.target.closest('[data-category]'); if (!btn) return;
+      category = btn.dataset.category;
+      document.querySelectorAll('[data-category]').forEach(x => x.classList.toggle('active', x === btn));
+      document.getElementById('selectedCategoryText').textContent = categoryNames[category];
+      renderQuick();
+    });
+    document.getElementById('consultInput').addEventListener('input', updateCount);
+    document.getElementById('getAdvice').addEventListener('click', renderAdvice);
+    document.getElementById('saveRuleBtn').addEventListener('click', saveRule);
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    document.querySelectorAll('[data-go-consult]').forEach(btn => btn.addEventListener('click', () => switchTab('consult')));
+    document.getElementById('saveProfile').addEventListener('click', saveProfile);
+    document.getElementById('refreshFortune').addEventListener('click', () => renderFortune(Math.floor(Math.random()*99)+1));
+    document.getElementById('refreshTip').addEventListener('click', () => renderTip(Math.floor(Math.random()*99)+1));
+    document.getElementById('saveTip').addEventListener('click', () => {
+      const text = document.getElementById('tipText').textContent;
+      if (!state.rules.some(r => r.text === text)) { state.rules.unshift({ text, type: '豆知識', createdAt: new Date().toLocaleDateString('ja-JP') }); saveState(state); renderRules(); }
+      const btn = document.getElementById('saveTip'); btn.textContent = '保存しました'; setTimeout(() => btn.textContent = 'ノートに保存', 1300);
+    });
+    document.getElementById('resetData').addEventListener('click', () => {
+      if (confirm('この端末内のデモデータを消しますか？')) { localStorage.removeItem(STORAGE_KEY); state = { profile: {}, rules: [] }; renderTraits(); renderRules(); alert('リセットしました'); }
+    });
+
+    renderQuick(); renderTraits(); renderRules(); renderFortune(); renderTip();
+  </script>
+</body>
+</html>
