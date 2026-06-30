@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f3eee7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="相談の受け方を自分に合わせられる、気持ち整理アプリ" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>一呼吸</title>
+  <style>
+    :root{
+      --bg:#f3eee7;
+      --paper:#fffdf9;
+      --paper2:#f8f3ec;
+      --ink:#302b27;
+      --muted:#837a70;
+      --line:#e7ddd1;
+      --line2:#ede6dd;
+      --brown:#4a4037;
+      --taupe:#87796d;
+      --soft:#efe7dc;
+      --rose:#a96e69;
+      --rose-soft:#f5e8e6;
+      --blue:#596a7b;
+      --blue-soft:#e9eef2;
+      --gold:#b29063;
+      --shadow:0 14px 34px rgba(52,42,34,.10);
+      --shadow-soft:0 7px 17px rgba(52,42,34,.08);
+      --r-xl:32px;
+      --r-lg:25px;
+      --r-md:19px;
+      --r-sm:14px;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0%,#fffdfa 0,transparent 28%),linear-gradient(145deg,#f7f4ef 0%,#eee8df 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;padding-bottom:94px}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .app{width:min(100%,740px);margin:0 auto;padding:18px 16px 30px}
+    .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 2px 22px}
+    .brand{display:flex;gap:10px;align-items:center;cursor:pointer}
+    .brand-mark{width:43px;height:43px;border-radius:16px;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow-soft);display:grid;place-items:center}
+    .brand-mark svg{width:23px;height:23px;stroke:var(--brown);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .brand-title{font-size:19px;font-weight:790;letter-spacing:.09em;line-height:1}
+    .brand-sub{font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:.03em}
+    .quiet-btn{border:0;background:transparent;padding:9px 4px;color:var(--muted);font-size:12px}
+    .screen{display:none;animation:fadeUp .28s ease both}
+    .screen.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    .eyebrow{font-size:10px;letter-spacing:.16em;color:var(--gold);font-weight:800;margin-bottom:8px}
+    .title{font-size:29px;line-height:1.25;letter-spacing:.01em;margin:0 0 7px}
+    .copy{font-size:13px;color:var(--muted);line-height:1.6;margin:0}
+    .home-hero{position:relative;overflow:hidden;border:1px solid var(--line);background:linear-gradient(135deg,#fffdf8,#f8f1e8);border-radius:var(--r-xl);padding:22px 19px 19px;box-shadow:var(--shadow);margin-bottom:16px}
+    .home-hero:after{content:"";position:absolute;width:175px;height:175px;border-radius:50%;right:-72px;top:-78px;border:1px solid #eadfd1}
+    .hero-name{font-size:12px;color:var(--taupe);margin-top:12px;position:relative;z-index:1}
+    .hero-name b{color:var(--brown)}
+    .section-row{display:flex;align-items:center;justify-content:space-between;margin:19px 2px 10px}
+    .section-row h2{font-size:15px;margin:0;letter-spacing:.03em}.section-row span{font-size:10px;color:var(--muted)}
+    .consult-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .icon-card{border:1px solid var(--line);background:var(--paper);border-radius:23px;padding:13px 7px 12px;box-shadow:var(--shadow-soft);text-align:center;color:var(--ink);transition:.17s ease}
+    .icon-card:active,.mini-card:active,.link-card:active,.choice:active,.character-card:active{transform:scale(.98)}
+    .icon-shell{width:54px;height:54px;border-radius:19px;background:#fbf8f4;border:1px solid var(--line2);display:grid;place-items:center;margin:0 auto 9px}
+    .icon-card:nth-child(1) .icon-shell{background:#f8eeec}.icon-card:nth-child(2) .icon-shell{background:#eef2f4}.icon-card:nth-child(3) .icon-shell{background:#f3f0eb}
+    .line-icon{width:29px;height:29px;stroke:var(--brown);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .icon-card:nth-child(1) .line-icon{stroke:#9f6b67}.icon-card:nth-child(2) .line-icon{stroke:#5f6e7c}.icon-card:nth-child(3) .line-icon{stroke:#655c53}
+    .icon-card b{display:block;font-size:13px}.icon-card small{display:block;font-size:9px;color:var(--muted);margin-top:4px;white-space:nowrap}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .mini-card{border:1px solid var(--line);background:var(--paper);border-radius:22px;padding:14px 12px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow-soft);text-align:left;color:var(--ink);transition:.17s ease}
+    .mini-card .icon-shell{width:43px;height:43px;border-radius:15px;margin:0;flex:0 0 43px}.mini-card:first-child .icon-shell{background:#f6ece9}.mini-card:last-child .icon-shell{background:#f1eee8}
+    .mini-card b{font-size:13px}.mini-card small{display:block;font-size:10px;color:var(--muted);margin-top:3px;line-height:1.25}
+    .link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+    .link-card{border:1px solid var(--line);background:rgba(255,253,249,.75);border-radius:16px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;color:var(--ink);font-size:13px;text-align:left}.link-card span{color:var(--muted);font-size:17px;line-height:1}
+
+    .back{border:0;background:transparent;color:var(--muted);font-size:13px;padding:6px 0 15px;display:flex;align-items:center;gap:6px}.back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .field-card,.card{border:1px solid var(--line);background:var(--paper);border-radius:var(--r-xl);box-shadow:var(--shadow-soft);padding:16px}
+    .category-row,.topic-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin:14px 0}.category-row::-webkit-scrollbar,.topic-row::-webkit-scrollbar{display:none}
+    .chip{white-space:nowrap;border-radius:999px;border:1px solid var(--line);background:#fffefa;color:#655c54;padding:9px 12px;font-size:12px}.chip.active{background:var(--brown);color:#fffdfa;border-color:var(--brown)}
+    .profile-hint{padding:11px 12px;border-radius:14px;background:#f4efe8;color:#665c52;font-size:11px;line-height:1.55;margin:8px 0 13px}.profile-hint b{color:var(--brown)}
+    .textarea{width:100%;min-height:145px;padding:14px;border:1px solid var(--line);border-radius:18px;background:#fffefa;color:var(--ink);font-size:15px;line-height:1.65;resize:vertical;outline:none}.textarea:focus{border-color:#cdbca9;box-shadow:0 0 0 3px rgba(178,144,99,.13)}
+    .count{text-align:right;color:var(--muted);font-size:10px;margin:7px 2px 0}
+    .primary{border:0;border-radius:17px;padding:14px 16px;background:var(--brown);color:#fffdfa;width:100%;font-size:15px;font-weight:760;margin-top:12px;box-shadow:0 10px 18px rgba(59,49,42,.17)}.primary:active{transform:translateY(1px)}
+    .small-note{font-size:10px;color:var(--muted);line-height:1.55;margin:11px 2px 0}
+    .result{display:none;margin-top:14px;border:1px solid var(--line);background:var(--paper);border-radius:var(--r-xl);box-shadow:var(--shadow);overflow:hidden}.result.show{display:block;animation:fadeUp .25s ease}
+    .result-head{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line)}.result-head strong{font-size:14px}.save{border:0;border-radius:999px;background:var(--soft);color:#5d5349;padding:8px 11px;font-size:11px;font-weight:750}
+    .result-block{padding:15px 16px 0}.result-block:last-child{padding-bottom:16px}.result-label{font-size:10px;letter-spacing:.14em;color:var(--gold);font-weight:800;margin-bottom:7px}.result-text{font-size:14px;line-height:1.6;margin:0}.emotion-list{display:flex;flex-wrap:wrap;gap:7px}.emotion{background:#f7f3ed;color:#655c53;border-radius:999px;padding:7px 10px;font-size:11px}
+    .option-list{display:grid;gap:8px}.option{border:1px solid var(--line);background:#fffefa;border-radius:15px;padding:11px 12px;color:var(--ink);font-size:13px;text-align:left;display:flex;gap:9px;align-items:center}.option .dot{width:8px;height:8px;background:#b6a18a;border-radius:50%;flex:0 0 8px}.option.selected{background:#fbf7f1;border-color:#bda78c}.option.selected .dot{background:var(--gold)}
+    .message{background:#f4efe8;border-radius:15px;padding:12px 13px;line-height:1.6;font-size:13px}.quote{border-left:2px solid var(--gold);padding-left:11px;color:#62594f;font-size:12px;line-height:1.6}.quote small{display:block;color:var(--muted);font-size:10px;margin-top:5px}.author-link{border:0;background:transparent;color:#735f4d;padding:0;text-decoration:underline;text-underline-offset:2px;font-weight:750;font-size:12px}
+
+    .fortune-stage{position:relative;overflow:hidden;min-height:332px;border:1px solid var(--line);background:linear-gradient(140deg,#fffcf7,#f3ece1);border-radius:var(--r-xl);box-shadow:var(--shadow);display:grid;place-items:center;margin-top:10px}
+    .fortune-stage .arch{position:absolute;border:1px solid #e7d8c8;border-radius:999px;opacity:.8}.fortune-stage .arch.one{width:310px;height:310px;right:-145px;top:-154px}.fortune-stage .arch.two{width:220px;height:220px;left:-105px;bottom:-132px}.fortune-stage .ray{position:absolute;width:1px;height:88px;background:linear-gradient(#d2b388,transparent);top:8px;left:50%;transform-origin:50% 158px;opacity:.42}.fortune-stage .ray:nth-of-type(1){transform:rotate(-65deg)}.fortune-stage .ray:nth-of-type(2){transform:rotate(-38deg)}.fortune-stage .ray:nth-of-type(3){transform:rotate(-12deg)}.fortune-stage .ray:nth-of-type(4){transform:rotate(14deg)}.fortune-stage .ray:nth-of-type(5){transform:rotate(40deg)}.fortune-stage .ray:nth-of-type(6){transform:rotate(66deg)}
+    .fortune-token{position:relative;z-index:1;width:158px;height:210px;border-radius:24px;background:#4c433b;box-shadow:0 20px 27px rgba(49,39,29,.25);display:grid;place-items:center;transition:.85s cubic-bezier(.17,.88,.22,1);transform-origin:top center}.fortune-token:before{content:"";position:absolute;top:-15px;width:50px;height:20px;border:4px solid #4c433b;border-bottom:0;border-radius:14px 14px 0 0}.fortune-paper{width:114px;height:155px;background:#fffdfa;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px;box-shadow:inset 0 0 0 1px #ece0cf}.fortune-paper .fortune-word{font-size:17px;color:#4b433c;font-weight:800;letter-spacing:.15em;writing-mode:vertical-rl}.fortune-paper .fortune-stamp{width:12px;height:12px;background:#b47a62;border-radius:2px}.fortune-token.drawing{animation:tokenShake .76s ease both}.fortune-token.reveal{transform:translateY(-6px) rotateY(180deg) scale(1.04);background:#7b6257}.fortune-token.reveal .fortune-paper{transform:rotateY(180deg)}
+    @keyframes tokenShake{15%,45%,75%{transform:translateX(-10px) rotate(-4deg)}30%,60%,90%{transform:translateX(10px) rotate(4deg)}100%{transform:translateX(0)}}
+    .fortune-result{display:none;border:1px solid var(--line);background:var(--paper);border-radius:20px;padding:15px;margin-top:13px;box-shadow:var(--shadow-soft)}.fortune-result.show{display:block;animation:fadeUp .32s ease}.fortune-kicker{font-size:10px;color:var(--gold);letter-spacing:.14em;font-weight:800}.fortune-result h3{font-size:19px;margin:7px 0 6px;line-height:1.4}.fortune-result p{font-size:12px;color:var(--muted);margin:0;line-height:1.55}.double{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.secondary{border:1px solid var(--line);border-radius:15px;background:var(--paper);padding:12px;color:#60564d;font-size:12px}.secondary.dark{background:var(--brown);border-color:var(--brown);color:#fffdfa}
+
+    .bonus-wrap{min-height:470px}.bonus-stage{margin-top:10px;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--r-xl);background:linear-gradient(145deg,#fffdf9,#f6efe5);min-height:305px;display:grid;place-items:center;box-shadow:var(--shadow)}.bonus-stage:before{content:"";width:220px;height:220px;border-radius:50%;border:1px solid #e9dbc9;position:absolute;right:-100px;top:-112px}.bonus-stage:after{content:"";position:absolute;left:-55px;bottom:-74px;width:150px;height:150px;border-radius:50%;background:rgba(213,188,150,.11)}
+    .streak{position:absolute;left:16px;top:15px;z-index:2;font-size:11px;color:#786451;background:#fffaf2;border:1px solid #eadcc8;border-radius:999px;padding:7px 10px}.bonus-box{z-index:1;width:146px;height:112px;position:relative;transition:.65s cubic-bezier(.17,.88,.22,1);cursor:pointer}.bonus-box .lid{position:absolute;width:154px;height:31px;left:-4px;top:7px;border-radius:11px 11px 7px 7px;background:#736252;border:4px solid #5f5043;transform-origin:left bottom;transition:.65s cubic-bezier(.17,.88,.22,1)}.bonus-box .body{position:absolute;width:146px;height:87px;bottom:0;border-radius:8px 8px 14px 14px;background:#8b7561;border:4px solid #5f5043}.bonus-box .ribbon-v{position:absolute;z-index:2;height:88px;width:18px;background:#d4b386;left:64px;bottom:0}.bonus-box .ribbon-h{position:absolute;z-index:2;height:18px;width:146px;background:#d4b386;left:0;bottom:45px}.bonus-box .tag{position:absolute;z-index:3;top:42px;left:53px;border-radius:8px;background:#fffaf0;color:#5c4e42;padding:7px 10px;font-size:10px;font-weight:850;box-shadow:0 4px 8px rgba(57,44,33,.16)}.bonus-box.open{transform:translateY(4px) scale(1.04)}.bonus-box.open .lid{transform:translateY(-34px) rotate(-17deg)}
+    .bonus-result{display:none;margin-top:13px;border:1px solid var(--line);border-radius:21px;padding:15px;background:var(--paper);box-shadow:var(--shadow-soft)}.bonus-result.show{display:block;animation:fadeUp .34s ease}.bonus-result .bonus-title{font-size:11px;color:var(--gold);letter-spacing:.13em;font-weight:800}.bonus-result h3{font-size:18px;margin:7px 0}.bonus-result p{font-size:13px;line-height:1.6;margin:0;color:#51483f}.claim-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}
+
+    .note-list{display:grid;gap:10px}.note-item{border:1px solid var(--line);background:var(--paper);border-radius:19px;padding:14px;box-shadow:var(--shadow-soft)}.note-item .date{font-size:10px;color:var(--gold);font-weight:800;letter-spacing:.08em}.note-item p{font-size:13px;line-height:1.55;margin:7px 0 0}.empty{border:1px dashed #d9cdbf;background:rgba(255,253,249,.65);border-radius:20px;padding:28px 18px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+
+    .profile-summary{display:grid;gap:8px;margin-top:12px}.summary-row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--line2);font-size:12px}.summary-row:last-child{border-bottom:0}.summary-row span{color:var(--muted)}.summary-row b{font-weight:720;text-align:right}.profile-card{border:1px solid var(--line);background:var(--paper);border-radius:var(--r-xl);padding:16px;box-shadow:var(--shadow-soft);margin-bottom:11px}.profile-card h3{font-size:15px;margin:0}.profile-card p{font-size:11px;color:var(--muted);line-height:1.55;margin:7px 0 0}.profile-buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}.outline-btn{border:1px solid var(--line);border-radius:14px;padding:11px;background:#fffefa;color:#5e544a;font-size:12px}.memory-list{padding:0;margin:12px 0 0;display:grid;gap:7px}.memory-list li{list-style:none;background:#f5f0e9;border-radius:13px;padding:10px 11px;font-size:11px;color:#5d544b}
+
+    .onboarding{min-height:calc(100vh - 48px);display:none;align-items:center;justify-content:center;padding:16px 0}.onboarding.active{display:flex}.onboard-card{width:100%;max-width:600px;border:1px solid var(--line);background:rgba(255,253,249,.97);border-radius:34px;padding:23px 18px 19px;box-shadow:var(--shadow)}.onboard-logo{width:56px;height:56px;border-radius:21px;background:#f4eee5;border:1px solid var(--line);display:grid;place-items:center;margin-bottom:17px}.onboard-logo svg{width:28px;height:28px;stroke:var(--brown);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.progress{height:4px;border-radius:999px;background:#ede4d9;margin:0 0 18px;overflow:hidden}.progress i{display:block;height:100%;background:var(--taupe);border-radius:inherit;transition:.25s ease}.onboard-title{font-size:28px;margin:0 0 8px;line-height:1.25}.onboard-copy{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 16px}.input-label{font-size:11px;color:#756b61;font-weight:750;display:block;margin:14px 0 7px}.text-input{width:100%;border:1px solid var(--line);border-radius:14px;background:#fffefa;padding:12px;color:var(--ink);font-size:14px;outline:none}.text-input:focus{border-color:#cdbca9;box-shadow:0 0 0 3px rgba(178,144,99,.13)}
+    .character-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.character-card{position:relative;border:1px solid var(--line);background:#fffefa;border-radius:17px;padding:13px 11px;text-align:left;min-height:98px}.character-card.active{border-color:#aa9075;background:#fbf7f1;box-shadow:inset 0 0 0 1px #aa9075}.character-card .c-icon{display:block;width:25px;height:25px;margin-bottom:8px}.character-card .c-icon svg{width:100%;height:100%;stroke:#685a4d;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.character-card b{display:block;font-size:13px}.character-card small{font-size:10px;color:var(--muted);display:block;margin-top:4px;line-height:1.35}.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.seg button{border:1px solid var(--line);border-radius:12px;background:#fffefa;color:#62584f;font-size:11px;padding:11px 7px}.seg button.active{background:var(--brown);color:#fffdfa;border-color:var(--brown)}
+    .style-list{display:grid;gap:10px}.style-q{border:1px solid var(--line);border-radius:18px;background:#fffefa;padding:13px}.style-q b{font-size:13px}.style-q p{font-size:10px;color:var(--muted);margin:4px 0 10px}.style-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.style-choice{border:1px solid var(--line);border-radius:12px;background:#fffdfa;padding:10px 8px;text-align:left;color:#5e554b;font-size:11px;line-height:1.35}.style-choice.active{background:#f5efe7;border-color:#bda58a;box-shadow:inset 0 0 0 1px #bda58a}
+    .complete-card{text-align:center;padding:30px 12px 16px}.complete-icon{width:62px;height:62px;margin:0 auto 15px;border-radius:50%;display:grid;place-items:center;background:#f0e6da;color:#6b5848;font-size:27px}.complete-card h2{font-size:27px;margin:0 0 8px}.complete-card p{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 18px}
+
+    .bottom-nav{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:40;width:min(calc(100% - 24px),710px);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:rgba(255,253,249,.95);backdrop-filter:blur(12px);border:1px solid var(--line);box-shadow:0 10px 28px rgba(52,42,34,.17);border-radius:22px;padding:7px}.nav{border:0;background:transparent;border-radius:15px;padding:8px 3px;color:var(--muted);font-size:10px}.nav svg{display:block;width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 3px}.nav.active{background:#f1ece3;color:#5c5146}
+    .modal{display:none;position:fixed;inset:0;z-index:80;background:rgba(41,34,29,.42);padding:24px 16px;align-items:flex-end;justify-content:center}.modal.show{display:flex}.modal-sheet{width:min(100%,650px);background:#fffdf9;border-radius:28px 28px 20px 20px;padding:18px 17px 22px;box-shadow:0 -10px 35px rgba(33,25,20,.18);animation:sheetUp .25s ease both}.modal-handle{width:38px;height:4px;background:#ddd1c4;border-radius:999px;margin:0 auto 16px}.modal-close{float:right;border:0;background:transparent;color:var(--muted);font-size:18px;padding:0 4px}.modal-title{font-size:21px;margin:0 0 5px}.modal-era{font-size:11px;color:var(--gold);letter-spacing:.09em;font-weight:800}.modal-text{font-size:13px;line-height:1.65;color:#554c43;margin:13px 0 0}.modal-note{font-size:10px;color:var(--muted);line-height:1.5;margin:12px 0 0}@keyframes sheetUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+    .toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%) translateY(10px);z-index:90;background:#433a32;color:#fffdfa;padding:10px 14px;border-radius:999px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:.25s ease}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .hidden{display:none!important}
+    @media(max-width:420px){.app{padding:16px 13px 26px}.title{font-size:26px}.onboard-title{font-size:26px}.icon-shell{width:49px;height:49px}.icon-card{padding:12px 5px 11px}.icon-card small{font-size:8px}.mini-card{padding:13px 10px}.fortune-stage{min-height:300px}.onboard-card{padding:21px 15px 16px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header" id="appHeader">
+      <div class="brand" onclick="go('home')" role="button" tabindex="0" aria-label="ホームへ">
+        <div class="brand-mark"><svg viewBox="0 0 24 24"><path d="M8 6v12M16 6v12"/><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>
+        <div><div class="brand-title">一呼吸</div><div class="brand-sub">気持ちを整えて、次の一手へ</div></div>
+      </div>
+      <button class="quiet-btn" id="headerAction" onclick="startConfigEdit()">AI設定</button>
+    </header>
+
+    <section id="onboardingAI" class="onboarding">
+      <div class="onboard-card">
+        <div class="progress"><i style="width:50%"></i></div>
+        <div class="onboard-logo"><svg viewBox="0 0 24 24"><path d="M8 6v12M16 6v12"/><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2-2V6a2 2 0 0 1-2-2Z"/></svg></div>
+        <h1 class="onboard-title">まず、AIを決めよう。</h1>
+        <p class="onboard-copy">相談相手のキャラクター・話し方を選べる。あとからいつでも変えられるよ。</p>
+        <label class="input-label" for="userName">なんて呼ばれたい？（任意）</label>
+        <input class="text-input" id="userName" placeholder="例：なかじ" maxlength="20" />
+        <label class="input-label">AIのキャラクター</label>
+        <div class="character-grid" id="characterGrid">
+          <button class="character-card active" data-character="calm" onclick="pickCharacter('calm')"><span class="c-icon"><svg viewBox="0 0 24 24"><path d="M4 12c2.4-4 5-6 8-6s5.6 2 8 6c-2.4 4-5 6-8 6s-5.6-2-8-6Z"/><path d="M9 12h.01M15 12h.01"/></svg></span><b>落ち着いた相棒</b><small>気持ちを静かに整える</small></button>
+          <button class="character-card" data-character="direct" onclick="pickCharacter('direct')"><span class="c-icon"><svg viewBox="0 0 24 24"><path d="M5 19 19 5M8 5h11v11"/></svg></span><b>率直な作戦係</b><small>結論から、はっきり整理</small></button>
+          <button class="character-card" data-character="senior" onclick="pickCharacter('senior')"><span class="c-icon"><svg viewBox="0 0 24 24"><path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM16 12a2.7 2.7 0 1 0 0-5.4"/><path d="M3 20c.7-3.5 2.4-5.2 5-5.2 2.8 0 4.4 1.7 5.1 5.2M14.5 15.3c2.8 0 4.4 1.5 5 4.7"/></svg></span><b>フラットな先輩</b><small>タメ口で、気軽に話せる</small></button>
+          <button class="character-card" data-character="coach" onclick="pickCharacter('coach')"><span class="c-icon"><svg viewBox="0 0 24 24"><path d="M12 3v18M6 9l6-6 6 6M7 21h10"/></svg></span><b>背中を押すコーチ</b><small>次の行動を一緒に決める</small></button>
+        </div>
+        <label class="input-label">話し方</label>
+        <div class="seg" id="toneSeg"><button class="active" data-tone="casual" onclick="pickTone('casual')">タメ口</button><button data-tone="polite" onclick="pickTone('polite')">ていねい</button><button data-tone="mixed" onclick="pickTone('mixed')">自然に</button></div>
+        <label class="input-label">返事の長さ</label>
+        <div class="seg" id="lengthSeg"><button data-length="short" onclick="pickLength('short')">短め</button><button class="active" data-length="normal" onclick="pickLength('normal')">ふつう</button><button data-length="deep" onclick="pickLength('deep')">しっかり</button></div>
+        <button class="primary" onclick="saveAIAndContinue()">次へ</button>
+        <p class="small-note">このデモ版では設定をこの端末内に保存します。</p>
+      </div>
+    </section>
+
+    <section id="onboardingStyle" class="onboarding">
+      <div class="onboard-card">
+        <div class="progress"><i style="width:100%"></i></div>
+        <h1 class="onboard-title">相談の受け方を、もう少し合わせよう。</h1>
+        <p class="onboard-copy">ここで選んだことをAIが覚えて、返し方に反映する。診断ではなく、会話の好みだよ。</p>
+        <div class="style-list" id="styleList"></div>
+        <label class="input-label" for="mbtiInput">MBTI（知っていれば・任意）</label>
+        <input class="text-input" id="mbtiInput" placeholder="例：ENFJ" maxlength="20" />
+        <label class="input-label" for="loveTypeInput">LoveType16（知っていれば・任意）</label>
+        <input class="text-input" id="loveTypeInput" placeholder="例：タイプ名" maxlength="30" />
+        <button class="primary" onclick="finishStyleSetup()">この設定で始める</button>
+      </div>
+    </section>
+
+    <section id="setupComplete" class="onboarding">
+      <div class="onboard-card complete-card">
+        <div class="complete-icon">✓</div>
+        <h2>準備できた。</h2>
+        <p id="setupCompleteText">相談相手が決まったよ。</p>
+        <button class="primary" onclick="go('home')">はじめる</button>
+      </div>
+    </section>
+
+    <section id="home" class="screen">
+      <div class="home-hero">
+        <div class="eyebrow">YOUR CONSULTATION AI</div>
+        <h1 class="title" id="homeTitle">いま、どれ？</h1>
+        <p class="copy">話して、整えて、次の一手へ。</p>
+        <div class="hero-name" id="homeAiInfo"></div>
+      </div>
+      <div class="section-row"><h2>相談する</h2><span>気軽に話して</span></div>
+      <div class="consult-grid">
+        <button class="icon-card" onclick="startConsult('love')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M12 20.2S4 15.3 4 9.5A4.5 4.5 0 0 1 12 6.7a4.5 4.5 0 0 1 8 2.8c0 5.8-8 10.7-8 10.7Z"/><path d="M15.6 15.6 18.8 19"/></svg></div><b>恋愛</b><small>返信・不安</small></button>
+        <button class="icon-card" onclick="startConsult('friend')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="9" r="2.5"/><path d="M3.5 20c.7-3.4 2.4-5.1 4.8-5.1 2.8 0 4.4 1.7 5 5.1M14 15.6c2.8 0 4.5 1.4 5 4.4"/></svg></div><b>友だち</b><small>距離感・本音</small></button>
+        <button class="icon-card" onclick="startConsult('work')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M4 8h16v11H4zM8 8V5h8v3M4 12h16M10 12v2h4v-2"/></svg></div><b>仕事</b><small>バイト・伝え方</small></button>
+      </div>
+      <div class="section-row"><h2>毎日ひとつ</h2><span>1分でOK</span></div>
+      <div class="mini-grid">
+        <button class="mini-card" onclick="go('fortune')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M7 3h10l2 3v14H5V6l2-3Z"/><path d="M9 3v4m6-4v4M8 11h8M12 11v5"/></svg></div><span><b>恋の助言</b><small>今日のひとこと</small></span></button>
+        <button class="mini-card" onclick="go('bonus')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M3 9h18v11H3zM2 6h20v3H2zM12 6v14M8.3 6C6.4 6 5 5.2 5 3.9 5 2.8 5.9 2 7.1 2 9.1 2 10.7 4 12 6ZM15.7 6C17.6 6 19 5.2 19 3.9c0-1.1-.9-1.9-2.1-1.9-2 0-3.6 2-4.9 4"/></svg></div><span><b>デイリーボーナス</b><small>今日のちょい得</small></span></button>
+      </div>
+      <div class="link-grid">
+        <button class="link-card" onclick="go('note')">ノート <span>›</span></button>
+        <button class="link-card" onclick="go('profile')">AI設定・あなた <span>›</span></button>
+      </div>
+    </section>
+
+    <section id="consult" class="screen">
+      <button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button>
+      <h2 class="title" id="consultTitle">恋愛の相談</h2>
+      <p class="copy" id="consultSub">いまの気持ちを、短く言葉にしてみて。</p>
+      <div class="field-card" style="margin-top:16px">
+        <div class="category-row" id="categoryRow"></div>
+        <div class="topic-row" id="topicRow"></div>
+        <div class="profile-hint" id="consultProfileHint"></div>
+        <textarea id="consultInput" class="textarea" maxlength="500" placeholder="そのまま話してみて。"></textarea>
+        <div class="count"><span id="count">0</span>/500</div>
+        <button class="primary" onclick="makeAdvice()">整理する</button>
+        <p class="small-note">個人名・住所などは書かないでね。危険・自傷・暴力などの緊急相談は、身近な人や専門窓口に相談してね。</p>
+      </div>
+      <div class="result" id="result"></div>
+    </section>
+
+    <section id="fortune" class="screen">
+      <button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button>
+      <h2 class="title">恋の助言</h2>
+      <p class="copy">今日の気持ちに、ひとつだけヒントを。</p>
+      <div class="fortune-stage">
+        <div class="arch one"></div><div class="arch two"></div>
+        <i class="ray"></i><i class="ray"></i><i class="ray"></i><i class="ray"></i><i class="ray"></i><i class="ray"></i>
+        <div class="fortune-token" id="fortuneToken"><div class="fortune-paper"><span class="fortune-word" id="fortuneWord">助言</span><i class="fortune-stamp"></i></div></div>
+      </div>
+      <div class="fortune-result" id="fortuneResult"><div class="fortune-kicker">TODAY'S ADVICE</div><h3>今日の恋の助言を受け取ろう。</h3><p>答えを決めつけるためじゃなく、言葉を選ぶヒント。</p></div>
+      <button class="primary" id="fortuneBtn" onclick="drawFortune()">今日の助言を受け取る</button>
+      <div class="double"><button class="secondary" onclick="drawFortune()">もう一度</button><button class="secondary dark" onclick="startConsult('love')">恋愛を相談する</button></div>
+    </section>
+
+    <section id="bonus" class="screen">
+      <button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button>
+      <h2 class="title">デイリーボーナス</h2>
+      <p class="copy">今日ひとつ、暮らしが少しラクになる。</p>
+      <div class="bonus-stage" id="bonusStage">
+        <div class="streak" id="streakBadge">DAY 1</div>
+        <button class="bonus-box" id="bonusBox" onclick="claimBonus()" aria-label="今日のボーナスを受け取る"><i class="lid"></i><i class="body"></i><i class="ribbon-v"></i><i class="ribbon-h"></i><span class="tag">OPEN</span></button>
+      </div>
+      <div class="bonus-result" id="bonusResult"></div>
+      <button class="primary" id="bonusBtn" onclick="claimBonus()">今日のボーナスを受け取る</button>
+      <div class="claim-note" id="bonusNote">1日1回。明日も受け取れる。</div>
+    </section>
+
+    <section id="note" class="screen">
+      <button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button>
+      <h2 class="title">ノート</h2><p class="copy">うまくいった言葉を、次の自分へ。</p>
+      <div class="note-list" id="noteList" style="margin-top:16px"></div>
+    </section>
+
+    <section id="profile" class="screen">
+      <button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button>
+      <h2 class="title">AI設定・あなた</h2><p class="copy">相談相手と、相談の受け方をいつでも調整できる。</p>
+      <div class="profile-card" style="margin-top:16px"><h3>いまのAI</h3><div class="profile-summary" id="aiSummary"></div><div class="profile-buttons"><button class="outline-btn" onclick="startConfigEdit()">AIのキャラクター</button><button class="outline-btn" onclick="startStyleEdit()">相談スタイル</button></div></div>
+      <div class="profile-card"><h3>AIが覚えていること</h3><p>この内容を相談の返し方に使う。</p><ul class="memory-list" id="memoryList"></ul></div>
+      <div class="profile-card"><h3>データについて</h3><p>このデモ版では、設定とノートはこの端末のブラウザ内に保存される。リセットすると消える。</p><button class="outline-btn" style="margin-top:13px" onclick="resetAll()">全部リセット</button></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" id="bottomNav" aria-label="メニュー">
+    <button class="nav active" data-nav="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>相談</button>
+    <button class="nav" data-nav="note" onclick="go('note')"><svg viewBox="0 0 24 24"><path d="M6 3h10a2 2 0 0 1 2 2v16H8a2 2 0 0 0-2-2ZM6 3v16a2 2 0 0 1 2-2h10"/><path d="M10 8h5M10 12h5"/></svg>ノート</button>
+    <button class="nav" data-nav="profile" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 3.5-6 8-6s7.2 2 8 6"/></svg>あなた</button>
+  </nav>
+
+  <div class="modal" id="authorModal" onclick="closeAuthor(event)"><div class="modal-sheet" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAuthor()">×</button><div class="modal-handle"></div><div class="modal-era" id="authorEra"></div><h3 class="modal-title" id="authorName"></h3><p class="modal-text" id="authorBio"></p><p class="modal-note">アプリ内の「今日の言葉」は、原文の趣旨を日常向けに整えた意訳を含みます。</p></div></div>
+  <div class="toast" id="toast"></div>
+
+<script>
+const STORE='ippuku_v3_state';
+const defaultData={
+  config:null,
+  style:{},
+  notes:[],
+  bonus:{date:'',streak:0,lastIndex:0},
+  fortuneDate:''
+};
+let data=loadData();
+let state={screen:'home',category:'love',topic:'',selectedOption:0,character:'calm',tone:'casual',length:'normal'};
+const labels={love:'恋愛',friend:'友だち',work:'仕事'};
+const topics={
+  love:['既読が気になる','追いLINEしたい','不満を伝えたい','相手の気持ちが不安'],
+  friend:['なんかモヤモヤ','距離を置きたい','言い方に悩む','仲直りしたい'],
+  work:['断りたい','上司に相談','ミスが怖い','シフトの相談']
+};
+const characters={
+  calm:{name:'落ち着いた相棒',desc:'気持ちを静かに整える'},
+  direct:{name:'率直な作戦係',desc:'結論から、はっきり整理'},
+  senior:{name:'フラットな先輩',desc:'気軽に話せる'},
+  coach:{name:'背中を押すコーチ',desc:'次の行動を決める'}
+};
+const styleQuestions=[
+  {id:'start',q:'相談の最初、どっちがいい？',a:'気持ちを受け止めてほしい',b:'状況を冷静に見てほしい'},
+  {id:'goal',q:'相談のゴールは？',a:'気持ちが落ち着くこと',b:'次の行動が決まること'},
+  {id:'choice',q:'迷っている時は？',a:'選択肢を並べてほしい',b:'おすすめを一つほしい'},
+  {id:'message',q:'LINEや会話では？',a:'送れる文まで考えてほしい',b:'自分の言葉を整理したい'},
+  {id:'anxiety',q:'不安な時の自分に近いのは？',a:'早く相手の気持ちを確かめたい',b:'ひとりで考え込みやすい'},
+  {id:'conflict',q:'ぶつかった時は？',a:'できればすぐ話したい',b:'少し時間を置きたい'},
+  {id:'feedback',q:'AIからの返しは？',a:'やわらかく伝えてほしい',b:'率直に伝えてほしい'},
+  {id:'memory',q:'過去の相談については？',a:'前の傾向も踏まえてほしい',b:'毎回まっさらに考えてほしい'}
+];
+const advice={
+  love:{
+    fact:'返信の速さだけでは、相手の気持ちは決められない。',
+    emotions:['不安','さみしい','焦り'],
+    options:['今日は一度待つ','軽く確認する','落ち着いて本音を伝える'],
+    message:'忙しかったら全然大丈夫。落ち着いたら返事もらえたらうれしい。',
+    quote:{author:'seneca',text:'不安は、事実より想像で大きくなる。'}
+  },
+  friend:{
+    fact:'相手の言動が気になっても、その場で結論を出す必要はない。',
+    emotions:['モヤモヤ','悲しい','言いづらい'],
+    options:['いったん自分の気持ちを書く','軽く聞いてみる','自分の希望として伝える'],
+    message:'責めたいわけじゃないんだけど、あの時ちょっと引っかかった。今度はこうしてくれたらうれしい。',
+    quote:{author:'aurelius',text:'自分で選べるのは、自分の態度だ。'}
+  },
+  work:{
+    fact:'仕事の相談は、結論と希望を短く伝えるほど通りやすい。',
+    emotions:['気まずい','不安','がんばりすぎ'],
+    options:['まず結論だけ伝える','相談する時間を決める','断るラインを言葉にする'],
+    message:'相談したいことがあります。○○について、△△の形にできると助かります。',
+    quote:{author:'shoin',text:'小さな一歩でも、動けば景色は変わる。'}
+  }
+};
+const authors={
+  seneca:{name:'セネカ',era:'紀元前4年ごろ〜65年｜古代ローマ',bio:'古代ローマの政治家・哲学者・劇作家。ストア派の思想家として知られ、感情に振り回されず、理性で自分の行動を選ぶ考え方を説いた。'},
+  aurelius:{name:'マルクス・アウレリウス',era:'121〜180年｜古代ローマ皇帝',bio:'ローマ皇帝であり、ストア派の哲学者。著書『自省録』では、自分では変えられないことと、自分の態度で選べることを分けて考える姿勢を残した。'},
+  shoin:{name:'吉田松陰',era:'1830〜1859年｜幕末の思想家・教育者',bio:'幕末期の思想家・教育者。松下村塾で多くの若者に学びと行動を促した。小さくても行動を始める姿勢を重視した人物として知られる。'}
+};
+const fortuneTips=[
+  {title:'今日は、急がない。',body:'返事を急がせない言葉が、いちばん届きやすい日。',action:'送る前に、10分だけ置いてみる。'},
+  {title:'希望で伝える。',body:'「なんで？」より「こうしてくれるとうれしい」。',action:'責める言葉を、希望の形に変える。'},
+  {title:'自分の予定を進める。',body:'相手の返信を待つ時間は、自分を整える時間にもできる。',action:'気になっていたことを一つ終わらせる。'},
+  {title:'短い一言でいい。',body:'長文より、やわらかい一言の方が距離を縮めることもある。',action:'送りたい文を、半分の長さにしてみる。'},
+  {title:'本音は静かに。',body:'気持ちを伝えるなら、感情が落ち着いたタイミングで。',action:'今の気持ちを一行だけメモする。'}
+];
+const dailyTips=[
+  {title:'ごはんを少しふっくら',body:'お米を炊く時、小さめの氷を1〜2個入れると、水温が下がって吸水しやすくなることがある。',try:'いつもの水加減のあとに、氷を1〜2個だけ。'},
+  {title:'Tシャツの首元を守る',body:'干す時はハンガーを首元から入れず、裾から通すと伸びにくい。',try:'次に干す1枚だけ、裾から通してみる。'},
+  {title:'洗濯物はアーチ干し',body:'長い服を外側、短い服を内側にすると、空気が通りやすく乾きやすい。',try:'タオルを外側にして干してみる。'},
+  {title:'スマホの充電を長持ちさせる',body:'暑い場所での充電は、バッテリーに負担がかかりやすい。',try:'充電中だけ、ケースを外してみる。'},
+  {title:'切ったりんごの色止め',body:'切ったりんごは、薄い塩水にさっと通すと変色しにくい。',try:'水200mlに塩をほんの少し入れてみる。'},
+  {title:'タオルのにおい対策',body:'洗濯後は、できるだけ早く干すだけでも生乾き臭を防ぎやすい。',try:'洗濯が終わったら、10分以内に干す。'}
+];
+
+function loadData(){try{return {...defaultData,...JSON.parse(localStorage.getItem(STORE)||'{}')}}catch(e){return {...defaultData}}}
+function saveData(){localStorage.setItem(STORE,JSON.stringify(data))}
+function esc(s){return String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function today(){return new Date().toISOString().slice(0,10)}
+function dateLabel(){return new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short'}).format(new Date())}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+function hideAll(){document.querySelectorAll('.screen,.onboarding').forEach(el=>el.classList.remove('active'))}
+function go(screen){
+  hideAll();
+  const el=document.getElementById(screen);if(!el)return;
+  el.classList.add('active');state.screen=screen;
+  const inSetup=['onboardingAI','onboardingStyle','setupComplete'].includes(screen);
+  document.getElementById('appHeader').classList.toggle('hidden',inSetup);
+  document.getElementById('bottomNav').classList.toggle('hidden',inSetup);
+  document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.nav===screen || (screen==='consult'&&n.dataset.nav==='home')));
+  if(screen==='home')renderHome();
+  if(screen==='consult')renderConsult();
+  if(screen==='note')renderNotes();
+  if(screen==='profile')renderProfile();
+  if(screen==='bonus')renderBonus();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function init(){
+  renderStyleQuestions();
+  document.getElementById('consultInput').addEventListener('input',e=>document.getElementById('count').textContent=e.target.value.length);
+  if(!data.config){setupForm();go('onboardingAI')}else{go('home')}
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+}
+function setupForm(){
+  const c=data.config||{};state.character=c.character||'calm';state.tone=c.tone||'casual';state.length=c.length||'normal';
+  document.getElementById('userName').value=c.userName||'';
+  document.getElementById('mbtiInput').value=c.mbti||'';
+  document.getElementById('loveTypeInput').value=c.loveType||'';
+  pickCharacter(state.character);pickTone(state.tone);pickLength(state.length);
+}
+function pickCharacter(key){state.character=key;document.querySelectorAll('.character-card').forEach(el=>el.classList.toggle('active',el.dataset.character===key))}
+function pickTone(key){state.tone=key;document.querySelectorAll('#toneSeg button').forEach(el=>el.classList.toggle('active',el.dataset.tone===key))}
+function pickLength(key){state.length=key;document.querySelectorAll('#lengthSeg button').forEach(el=>el.classList.toggle('active',el.dataset.length===key))}
+function saveAIAndContinue(){
+  data.config={...(data.config||{}),userName:document.getElementById('userName').value.trim(),character:state.character,tone:state.tone,length:state.length,mbti:document.getElementById('mbtiInput').value.trim(),loveType:document.getElementById('loveTypeInput').value.trim()};saveData();
+  go('onboardingStyle');
+}
+function renderStyleQuestions(){
+  const host=document.getElementById('styleList');
+  host.innerHTML=styleQuestions.map((x,i)=>`<div class="style-q"><b>${i+1}. ${x.q}</b><p>相談の返し方に使うよ。</p><div class="style-options"><button class="style-choice ${(data.style[x.id]||'a')==='a'?'active':''}" onclick="chooseStyle('${x.id}','a')">${x.a}</button><button class="style-choice ${(data.style[x.id]||'a')==='b'?'active':''}" onclick="chooseStyle('${x.id}','b')">${x.b}</button></div></div>`).join('');
+}
+function chooseStyle(id,val){data.style[id]=val;saveData();renderStyleQuestions()}
+function finishStyleSetup(){
+  styleQuestions.forEach(q=>{if(!data.style[q.id])data.style[q.id]='a'});
+  data.config={...(data.config||{}),mbti:document.getElementById('mbtiInput').value.trim(),loveType:document.getElementById('loveTypeInput').value.trim(),ready:true};saveData();
+  const who=data.config.userName?`${data.config.userName}、` : '';
+  document.getElementById('setupCompleteText').textContent=`${who}${characters[data.config.character].name}が、あなたの相談スタイルを覚えたよ。`;
+  go('setupComplete');
+}
+function startConfigEdit(){setupForm();go('onboardingAI')}
+function startStyleEdit(){renderStyleQuestions();document.getElementById('mbtiInput').value=data.config?.mbti||'';document.getElementById('loveTypeInput').value=data.config?.loveType||'';go('onboardingStyle')}
+function renderHome(){
+  const c=data.config||{};const name=c.userName?`${c.userName}、いま、どれ？`:'いま、どれ？';
+  document.getElementById('homeTitle').textContent=name;
+  document.getElementById('homeAiInfo').innerHTML=`相談相手：<b>${characters[c.character||'calm'].name}</b> ・ ${toneLabel(c.tone||'casual')}`;
+}
+function toneLabel(k){return ({casual:'タメ口',polite:'ていねい',mixed:'自然な話し方'})[k]||'自然な話し方'}
+function startConsult(category){state.category=category;state.topic='';document.getElementById('consultInput').value='';document.getElementById('count').textContent='0';document.getElementById('result').classList.remove('show');go('consult')}
+function renderConsult(){
+  document.getElementById('consultTitle').textContent=`${labels[state.category]}の相談`;
+  document.getElementById('categoryRow').innerHTML=Object.entries(labels).map(([k,v])=>`<button class="chip ${k===state.category?'active':''}" onclick="changeCategory('${k}')">${v}</button>`).join('');
+  document.getElementById('topicRow').innerHTML=topics[state.category].map(t=>`<button class="chip ${t===state.topic?'active':''}" onclick="pickTopic('${t}')">${t}</button>`).join('');
+  document.getElementById('consultProfileHint').innerHTML=profileHint();
+}
+function changeCategory(k){state.category=k;state.topic='';renderConsult()}
+function pickTopic(t){state.topic=t;const textarea=document.getElementById('consultInput');if(!textarea.value)textarea.value=`${t}ことで悩んでる。`;document.getElementById('count').textContent=textarea.value.length;renderConsult()}
+function profileHint(){
+  const c=data.config||{};const q=styleQuestions.find(x=>x.id==='goal');const goal=q?(data.style.goal==='b'?q.b:q.a):'相談を整理したい';
+  return `<b>${characters[c.character||'calm'].name}</b>が、${goal}受け方で話す。`;
+}
+function profileMemoryLine(){
+  const qA=styleQuestions.find(q=>q.id==='anxiety');const qG=styleQuestions.find(q=>q.id==='goal');
+  const a=data.style.anxiety==='b'?qA.b:qA.a;const g=data.style.goal==='b'?qG.b:qG.a;
+  return `「${a}」「${g}」を選んでいたことも、今回の整理に反映する。`;
+}
+function makeAdvice(){
+  const input=document.getElementById('consultInput').value.trim();
+  if(!input){toast('ひとことだけでも書いてみて');return}
+  const a=advice[state.category];state.selectedOption=0;
+  const styleLead=buildStyleLead();
+  const excerpt=input.length>82?input.slice(0,82)+'…':input;
+  document.getElementById('result').innerHTML=`
+    <div class="result-head"><strong>一緒に整理したこと</strong><button class="save" onclick="saveRule()">ノートに保存</button></div>
+    <div class="result-block"><div class="result-label">AIの見立て</div><p class="result-text">${styleLead}${esc(excerpt)}。${a.fact}</p></div>
+    <div class="result-block"><div class="result-label">いまの気持ち</div><div class="emotion-list">${a.emotions.map(x=>`<span class="emotion">${x}</span>`).join('')}</div></div>
+    <div class="result-block"><div class="result-label">次の一手</div><div class="option-list">${a.options.map((x,i)=>`<button class="option ${i===0?'selected':''}" onclick="selectOption(${i})"><i class="dot"></i>${x}</button>`).join('')}</div></div>
+    <div class="result-block"><div class="result-label">送るなら</div><div class="message">${a.message}</div></div>
+    <div class="result-block"><div class="result-label">今日の言葉</div><div class="quote">「${a.quote.text}」<small><button class="author-link" onclick="openAuthor('${a.quote.author}')">${authors[a.quote.author].name}</button> の考え方をもとにした意訳</small></div></div>`;
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function buildStyleLead(){
+  const c=data.config||{};const direct=c.character==='direct'||data.style.feedback==='b';
+  if(direct)return '結論から言うと、いまは急いで決めない方がいい。 ';
+  if(c.character==='coach')return '次の一手が決まるように、まずここを見よう。 ';
+  if(c.character==='senior')return '一回、肩の力を抜いて整理しよう。 ';
+  return 'まず、今の気持ちを否定しなくて大丈夫。 ';
+}
+function selectOption(i){state.selectedOption=i;document.querySelectorAll('.option').forEach((el,n)=>el.classList.toggle('selected',i===n))}
+function saveRule(){
+  const a=advice[state.category];const text=a.options[state.selectedOption]||a.options[0];
+  data.notes.unshift({date:dateLabel(),tag:labels[state.category],text});saveData();toast('ノートに保存した')
+}
+function drawFortune(){
+  const token=document.getElementById('fortuneToken'),btn=document.getElementById('fortuneBtn');
+  token.classList.remove('reveal');token.classList.add('drawing');btn.disabled=true;btn.textContent='ことばを選んでる…';
+  setTimeout(()=>{const item=fortuneTips[Math.floor(Math.random()*fortuneTips.length)];document.getElementById('fortuneWord').textContent='助言';token.classList.remove('drawing');token.classList.add('reveal');document.getElementById('fortuneResult').innerHTML=`<div class="fortune-kicker">TODAY'S ADVICE</div><h3>${item.title}</h3><p>${item.body}<br><b style="color:#6b5746">今日やるなら：</b>${item.action}</p>`;document.getElementById('fortuneResult').classList.add('show');btn.disabled=false;btn.textContent='もう一度、助言を受け取る';data.fortuneDate=today();saveData()},820)
+}
+function bonusIndex(){const d=new Date();return (d.getFullYear()*13+d.getMonth()*31+d.getDate())%dailyTips.length}
+function renderBonus(){
+  const claimed=data.bonus.date===today();const idx=bonusIndex();document.getElementById('streakBadge').textContent=`DAY ${Math.max(1,data.bonus.streak||1)}`;
+  document.getElementById('bonusBox').classList.toggle('open',claimed);document.getElementById('bonusBtn').textContent=claimed?'今日のボーナスを受け取り済み':'今日のボーナスを受け取る';document.getElementById('bonusBtn').disabled=claimed;document.getElementById('bonusNote').textContent=claimed?'明日また、新しいボーナスが届く。':'1日1回。明日も受け取れる。';
+  if(claimed){showBonus(dailyTips[idx],false)}else{document.getElementById('bonusResult').classList.remove('show')}
+}
+function isYesterday(dateStr){if(!dateStr)return false;const d=new Date();d.setDate(d.getDate()-1);return dateStr===d.toISOString().slice(0,10)}
+function claimBonus(){
+  if(data.bonus.date===today()){toast('今日はもう受け取ったよ');return}
+  const box=document.getElementById('bonusBox');box.classList.add('open');
+  const prev=data.bonus.date;data.bonus.streak=isYesterday(prev)?(data.bonus.streak||1)+1:1;data.bonus.date=today();data.bonus.lastIndex=bonusIndex();saveData();
+  setTimeout(()=>{showBonus(dailyTips[bonusIndex()],true);document.getElementById('bonusBtn').disabled=true;document.getElementById('bonusBtn').textContent='今日のボーナスを受け取り済み';document.getElementById('streakBadge').textContent=`DAY ${data.bonus.streak}`;document.getElementById('bonusNote').textContent='明日また、新しいボーナスが届く。'},560)
+}
+function showBonus(item,animate){const el=document.getElementById('bonusResult');el.innerHTML=`<div class="bonus-title">DAILY BONUS ・ ${dateLabel()}</div><h3>${item.title}</h3><p>${item.body}</p><p style="margin-top:10px;color:#7d6751"><b>今日やるなら：</b>${item.try}</p>`;el.classList.add('show');if(animate)toast('今日のボーナスを受け取った')}
+function renderNotes(){
+  const host=document.getElementById('noteList');if(!data.notes.length){host.innerHTML='<div class="empty">まだノートは空っぽ。<br>相談の中で残したい言葉を保存していこう。</div>';return}
+  host.innerHTML=data.notes.map(n=>`<article class="note-item"><div class="date">${esc(n.date)} ・ ${esc(n.tag)}</div><p>${esc(n.text)}</p></article>`).join('')
+}
+function renderProfile(){
+  const c=data.config||{};document.getElementById('aiSummary').innerHTML=`<div class="summary-row"><span>キャラクター</span><b>${characters[c.character||'calm'].name}</b></div><div class="summary-row"><span>話し方</span><b>${toneLabel(c.tone||'casual')}</b></div><div class="summary-row"><span>返事の長さ</span><b>${({short:'短め',normal:'ふつう',deep:'しっかり'})[c.length||'normal']}</b></div><div class="summary-row"><span>呼び方</span><b>${c.userName||'未設定'}</b></div>`;
+  const list=[];styleQuestions.forEach(q=>{const val=data.style[q.id]||'a';list.push(val==='a'?q.a:q.b)});if(c.mbti)list.push(`MBTI：${c.mbti}（補足）`);if(c.loveType)list.push(`LoveType16：${c.loveType}（補足）`);document.getElementById('memoryList').innerHTML=list.map(x=>`<li>${esc(x)}</li>`).join('');
+}
+function openAuthor(id){const a=authors[id];if(!a)return;document.getElementById('authorName').textContent=a.name;document.getElementById('authorEra').textContent=a.era;document.getElementById('authorBio').textContent=a.bio;document.getElementById('authorModal').classList.add('show')}
+function closeAuthor(e){if(e&&e.target!==document.getElementById('authorModal'))return;document.getElementById('authorModal').classList.remove('show')}
+function resetAll(){if(!confirm('設定・ノート・デイリーボーナスを全部消す？'))return;localStorage.removeItem(STORE);data=loadData();setupForm();go('onboardingAI')}
+init();
+</script>
+</body>
+</html>
