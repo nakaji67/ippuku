@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f0e8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="気持ちを整えて、次の一手を選ぶ相談アプリ" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>一呼吸</title>
+  <style>
+    :root{
+      --bg:#f3f0e9;
+      --paper:#fffdfa;
+      --paper-2:#f9f6ef;
+      --ink:#2e2b28;
+      --muted:#827b73;
+      --line:#e7e0d7;
+      --accent:#575047;
+      --accent-soft:#eee7dc;
+      --blue:#53657d;
+      --blue-soft:#e8edf2;
+      --pink:#bb7f78;
+      --pink-soft:#f4e8e5;
+      --gold:#af9875;
+      --shadow:0 12px 30px rgba(54,46,39,.10);
+      --shadow-soft:0 6px 16px rgba(54,46,39,.08);
+      --r-lg:28px;
+      --r-md:20px;
+      --r-sm:14px;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;background:radial-gradient(circle at 15% 0%,#fffdfa 0,transparent 26%),linear-gradient(145deg,#f5f2ed,#eeeae2);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;min-height:100vh;padding-bottom:90px}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .app{width:min(100%,720px);margin:0 auto;padding:18px 16px 28px}
+    .header{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 22px;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .mark{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:var(--paper);box-shadow:var(--shadow-soft);border:1px solid rgba(231,224,215,.95)}
+    .mark svg{width:23px;height:23px;stroke:var(--accent);stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .brand-name{font-size:19px;font-weight:760;letter-spacing:.08em;line-height:1}
+    .brand-sub{font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:.03em}
+    .header .quiet{border:0;background:transparent;color:var(--muted);font-size:12px;padding:9px 6px}
+    .screen{display:none;animation:show .28s ease both}
+    .screen.active{display:block}
+    @keyframes show{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .back-row{display:flex;align-items:center;gap:9px;margin:0 0 17px}
+    .back{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;padding:6px 0;color:var(--muted);font-size:13px}
+    .back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .section-title{font-size:27px;letter-spacing:.02em;margin:0 0 7px;line-height:1.25}
+    .section-copy{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.6}
+    .home-hero{padding:21px 19px 18px;background:linear-gradient(135deg,#fffdf9,#f8f3ea);border:1px solid rgba(231,224,215,.96);border-radius:var(--r-lg);box-shadow:var(--shadow);margin-bottom:15px}
+    .home-hero .eyebrow{font-size:11px;color:var(--gold);letter-spacing:.14em;font-weight:750;margin-bottom:8px}
+    .home-hero h1{font-size:29px;margin:0;letter-spacing:.02em;line-height:1.25}
+    .home-hero p{font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.55}
+    .label-row{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 10px}
+    .label-row h2{margin:0;font-size:15px;letter-spacing:.03em}
+    .label-row span{font-size:11px;color:var(--muted)}
+    .consult-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .action-card{border:1px solid var(--line);background:var(--paper);border-radius:22px;padding:14px 10px 12px;text-align:center;box-shadow:var(--shadow-soft);transition:.18s ease;color:var(--ink)}
+    .action-card:active,.mini-card:active,.icon-tile:active{transform:scale(.98)}
+    .action-card .icon-shell,.mini-card .icon-shell,.icon-tile .icon-shell{width:54px;height:54px;margin:0 auto 9px;border-radius:19px;display:grid;place-items:center;background:#faf8f4;border:1px solid #ece6dd}
+    .action-card:nth-child(1) .icon-shell{background:#f7ece9}.action-card:nth-child(2) .icon-shell{background:#eef1f4}.action-card:nth-child(3) .icon-shell{background:#f1efe9}
+    .line-icon{width:29px;height:29px;stroke:var(--accent);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .action-card:nth-child(1) .line-icon{stroke:#a46966}.action-card:nth-child(2) .line-icon{stroke:#657483}.action-card:nth-child(3) .line-icon{stroke:#665d53}
+    .action-card b{display:block;font-size:13px}.action-card small{display:block;font-size:10px;color:var(--muted);margin-top:4px;white-space:nowrap}
+    .sub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .mini-card{border:1px solid var(--line);background:var(--paper);border-radius:22px;padding:15px 13px;display:flex;align-items:center;gap:11px;text-align:left;box-shadow:var(--shadow-soft);color:var(--ink)}
+    .mini-card .icon-shell{width:42px;height:42px;margin:0;border-radius:15px;flex:0 0 42px}
+    .mini-card:first-child .icon-shell{background:#f4e8e5}.mini-card:last-child .icon-shell{background:#f2efe8}
+    .mini-card b{font-size:13px}.mini-card small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+    .bottom-links{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+    .text-link{border:1px solid var(--line);border-radius:16px;background:rgba(255,253,250,.72);padding:13px 14px;display:flex;justify-content:space-between;align-items:center;color:var(--ink);font-size:13px}.text-link span{color:var(--muted)}
+    .text-link svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+    .field-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow-soft)}
+    .topic-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin:14px 0 14px}.topic-row::-webkit-scrollbar{display:none}
+    .topic{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:#fffdfa;color:#675f57;font-size:12px}.topic.active{background:var(--accent);border-color:var(--accent);color:#fffdfa}
+    .textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:18px;resize:vertical;padding:15px;background:#fffefa;color:var(--ink);font-size:15px;line-height:1.65;outline:none}.textarea:focus{border-color:#c9bdad;box-shadow:0 0 0 3px rgba(175,152,117,.15)}
+    .count{font-size:10px;color:var(--muted);text-align:right;margin:7px 2px 0}
+    .main-button{border:0;width:100%;border-radius:17px;padding:14px 16px;background:var(--accent);color:#fffdfa;font-size:15px;font-weight:750;box-shadow:0 10px 18px rgba(68,58,48,.17);margin-top:12px}.main-button:active{transform:translateY(1px)}
+    .note{font-size:11px;color:var(--muted);line-height:1.55;margin:11px 2px 0}
+    .result-card{display:none;margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}.result-card.show{display:block;animation:show .28s ease}
+    .result-head{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.result-head strong{font-size:15px}.save-rule{border:0;border-radius:999px;background:var(--accent-soft);padding:8px 11px;color:#62584c;font-size:11px;font-weight:700}
+    .result-block{padding:15px 16px 0}.result-block:last-child{padding-bottom:16px}.result-label{font-size:11px;color:var(--gold);letter-spacing:.12em;font-weight:800;margin-bottom:7px}.result-text{font-size:14px;line-height:1.6;margin:0}.emotion-row{display:flex;flex-wrap:wrap;gap:7px}.emotion{background:#f7f4ee;border-radius:999px;padding:7px 10px;font-size:11px;color:#635a51}
+    .option-list{display:grid;gap:8px}.option{width:100%;border:1px solid var(--line);background:#fffdfa;border-radius:14px;padding:11px 12px;display:flex;align-items:center;gap:9px;text-align:left;color:var(--ink);font-size:13px}.option .dot{width:8px;height:8px;border-radius:50%;background:#b9aa96}.option.selected{border-color:#bca991;background:#fbf8f2}.option.selected .dot{background:var(--gold)}
+    .message-box{background:#f4efe7;border-radius:16px;padding:12px 13px;line-height:1.55;font-size:13px}.quote-box{border-left:2px solid #b7a28b;padding-left:11px;color:#615950;font-size:12px;line-height:1.65}.quote-box b{font-size:10px;color:var(--gold);letter-spacing:.09em;display:block;margin-bottom:4px}
+    .fortune-wrap,.tip-wrap{min-height:430px;display:flex;flex-direction:column;justify-content:flex-start}
+    .fortune-stage{position:relative;display:grid;place-items:center;min-height:310px;border-radius:var(--r-lg);border:1px solid var(--line);background:linear-gradient(145deg,#fffdfa,#f7f2ea);box-shadow:var(--shadow);overflow:hidden;margin-top:8px}.fortune-stage:before,.fortune-stage:after{content:"";position:absolute;border:1px solid #e7ded1;border-radius:50%;opacity:.6}.fortune-stage:before{width:250px;height:250px;top:-170px;right:-90px}.fortune-stage:after{width:180px;height:180px;bottom:-135px;left:-65px}
+    .fortune-card{width:160px;height:204px;border-radius:22px;background:#574f47;border:1px solid #463e37;box-shadow:0 18px 25px rgba(43,35,28,.25);display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;transition:.45s cubic-bezier(.2,.9,.24,1)}
+    .fortune-card .tag{width:116px;height:152px;border-radius:4px;background:#fbfaf5;color:#37312d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;font-size:18px;font-weight:700;letter-spacing:.12em;writing-mode:vertical-rl;box-shadow:inset 0 0 0 1px #e6dfd2}.fortune-card .seal{width:16px;height:16px;border:1px solid #ad7a70;display:block;background:#f7ebe9;border-radius:2px}
+    .fortune-card.draw{transform:translateY(-10px) rotate(-4deg);animation:draw .7s ease-in-out infinite alternate}.fortune-card.result{background:#f3e7e4;border-color:#dfc3bd}.fortune-card.result .tag{font-size:20px;color:#8d5b57}.fortune-card.result .seal{background:#c68c84;border-color:#b36e66}
+    @keyframes draw{to{transform:translateY(8px) rotate(4deg)}}
+    .fortune-result{text-align:center;margin-top:19px;min-height:83px}.fortune-result .fortune-name{font-size:25px;font-weight:800;letter-spacing:.06em}.fortune-result p{font-size:13px;line-height:1.6;color:var(--muted);margin:7px auto 0;max-width:300px}
+    .dual-buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}.sub-button{border:1px solid var(--line);border-radius:16px;background:#fffdfa;color:#625a52;padding:12px;font-size:13px;font-weight:700}.sub-button.primary{background:var(--accent);border-color:var(--accent);color:#fffdfa}
+    .tip-card{min-height:310px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--paper);padding:24px 20px;box-shadow:var(--shadow);margin-top:8px;display:flex;flex-direction:column;justify-content:space-between}.tip-card.swap{animation:swap .34s ease}.tip-top{display:flex;justify-content:space-between;align-items:center}.tip-tag{font-size:11px;letter-spacing:.11em;color:var(--gold);font-weight:800}.tip-number{font-size:11px;color:var(--muted)}.tip-icon{width:60px;height:60px;border-radius:21px;background:#f5efe3;display:grid;place-items:center;margin:20px 0 12px}.tip-icon svg{width:30px;height:30px;stroke:#8d7660;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.tip-main{font-size:24px;font-weight:780;letter-spacing:.01em;line-height:1.35;margin:0}.tip-desc{font-size:13px;color:var(--muted);line-height:1.65;margin:11px 0 0}.tip-action{border-top:1px solid var(--line);padding-top:13px;font-size:12px;color:#60574e;margin-top:22px}.tip-action b{color:var(--gold)}@keyframes swap{from{opacity:.25;transform:translateX(14px)}to{opacity:1;transform:none}}
+    .book-list{display:grid;gap:10px}.saved{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:13px;box-shadow:var(--shadow-soft)}.saved b{font-size:13px}.saved p{font-size:12px;color:var(--muted);line-height:1.45;margin:4px 0 0}.saved button{border:0;background:transparent;color:#a97b73;padding:3px;font-size:12px}.empty{padding:30px 8px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+    .profile-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-soft);margin-bottom:12px}.profile-card h3{font-size:15px;margin:0 0 7px}.profile-card .hint-copy{font-size:12px;line-height:1.6;color:var(--muted);margin:0 0 14px}.input-label{font-size:11px;color:#6f665d;font-weight:700;margin:10px 0 6px;display:block}.text-input{width:100%;border:1px solid var(--line);background:#fffefa;border-radius:13px;padding:11px 12px;color:var(--ink);outline:none}.text-input:focus{border-color:#c9bdad}.check-list{display:grid;gap:8px;margin-top:10px}.check{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--line);background:#fffefa;border-radius:14px;padding:10px}.check input{margin-top:2px;accent-color:#776c5d}.check b{font-size:12px;display:block}.check small{font-size:10px;color:var(--muted);display:block;margin-top:2px;line-height:1.4}
+    .diagnosis-q{margin:12px 0 0}.diagnosis-q p{font-size:13px;margin:0 0 8px}.two-choice{display:grid;grid-template-columns:1fr 1fr;gap:7px}.two-choice button{border:1px solid var(--line);background:#fffefa;border-radius:13px;padding:10px 7px;font-size:11px;color:#665e55}.two-choice button.active{background:#eee8df;border-color:#cdbda9}.diagnosis-result{display:none;margin-top:13px;padding:13px;border-radius:15px;background:#f4efe7;font-size:13px;line-height:1.6}.diagnosis-result.show{display:block}
+    .bottom-nav{position:fixed;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 24px),690px);z-index:30;background:rgba(255,253,250,.94);backdrop-filter:blur(14px);border:1px solid rgba(231,224,215,.94);border-radius:22px;padding:7px;box-shadow:0 10px 28px rgba(54,46,39,.16);display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.nav{border:0;background:transparent;border-radius:16px;padding:8px 3px;color:var(--muted);font-size:10px}.nav svg{display:block;margin:0 auto 3px;width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}.nav.active{background:#f1ece3;color:#5d5349}
+    .toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%) translateY(10px);background:#423a34;color:#fffdfa;border-radius:999px;padding:10px 14px;font-size:12px;opacity:0;pointer-events:none;transition:.25s ease;z-index:50;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(max-width:420px){.app{padding:16px 13px 24px}.home-hero h1{font-size:27px}.action-card{padding:12px 6px 11px}.action-card .icon-shell{width:48px;height:48px;border-radius:17px}.action-card small{font-size:9px}.mini-card{padding:13px 11px}.section-title{font-size:25px}.fortune-stage{min-height:290px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="brand" role="button" tabindex="0" aria-label="ホームへ" onclick="go('home')">
+        <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6v12M16 6v12"/><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg></div>
+        <div><div class="brand-name">一呼吸</div><div class="brand-sub">気持ちを整えて、次の一手へ</div></div>
+      </div>
+      <button class="quiet" onclick="resetAll()">リセット</button>
+    </header>
+
+    <section id="home" class="screen active">
+      <div class="home-hero">
+        <div class="eyebrow">CONSULTATION</div>
+        <h1>いま、どれ？</h1>
+        <p>モヤモヤを、短く整理しよう。</p>
+      </div>
+
+      <div class="label-row"><h2>相談する</h2><span>気軽に話して</span></div>
+      <div class="consult-grid">
+        <button class="action-card" onclick="startConsult('love')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M12 20.2S4 15.3 4 9.5A4.5 4.5 0 0 1 12 6.7a4.5 4.5 0 0 1 8 2.8c0 5.8-8 10.7-8 10.7Z"/><path d="M15.6 15.6 18.8 19"/></svg></div><b>恋愛</b><small>返信・不安</small></button>
+        <button class="action-card" onclick="startConsult('friend')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M8.5 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM15.8 12a2.7 2.7 0 1 0 0-5.4"/><path d="M3.5 19c.6-3.2 2.2-5 5-5s4.4 1.8 5 5M14 15c2.9-.2 4.7 1.3 5.2 4"/></svg></div><b>友だち</b><small>距離感・本音</small></button>
+        <button class="action-card" onclick="startConsult('work')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M4 8h16v11H4zM8 8V5h8v3M4 12h16M10 12v2h4v-2"/></svg></div><b>仕事</b><small>バイト・伝え方</small></button>
+      </div>
+
+      <div class="label-row"><h2>ちょっと見る</h2><span>1分でOK</span></div>
+      <div class="sub-grid">
+        <button class="mini-card" onclick="go('fortune')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M7 3h10l2 3v14H5V6l2-3Z"/><path d="M9 3v4m6-4v4M8 11h8M12 11v5"/></svg></div><span><b>恋みくじ</b><small>今日の恋のヒント</small></span></button>
+        <button class="mini-card" onclick="go('tips')"><div class="icon-shell"><svg class="line-icon" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8 15.5A6.5 6.5 0 1 1 16 15.5c-1.1.9-1.5 1.8-1.6 2.5H9.6c-.1-.7-.5-1.6-1.6-2.5Z"/></svg></div><span><b>豆知識</b><small>今日のちょい得</small></span></button>
+      </div>
+
+      <div class="bottom-links">
+        <button class="text-link" onclick="go('note')">ノート <span>›</span></button>
+        <button class="text-link" onclick="go('profile')">プロフィール・診断 <span>›</span></button>
+      </div>
+    </section>
+
+    <section id="consult" class="screen">
+      <div class="back-row"><button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button></div>
+      <h2 class="section-title" id="consultTitle">恋愛の相談</h2>
+      <p class="section-copy">タイプは補足。いまの気持ちを優先するよ。</p>
+      <div class="field-card">
+        <div class="topic-row" id="topicRow"></div>
+        <textarea class="textarea" id="consultInput" maxlength="500" placeholder="そのまま話してみて。"></textarea>
+        <div class="count"><span id="count">0</span>/500</div>
+        <button class="main-button" onclick="makeAdvice()">整理する</button>
+        <p class="note">個人名・住所などは書かないでね。緊急の危険や自傷・暴力の相談には対応できません。</p>
+      </div>
+      <div class="result-card" id="resultCard">
+        <div class="result-head"><strong>一緒に整理したこと</strong><button class="save-rule" onclick="saveRule()">ルールに保存</button></div>
+        <div id="resultContent"></div>
+      </div>
+    </section>
+
+    <section id="fortune" class="screen">
+      <div class="back-row"><button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button></div>
+      <div class="fortune-wrap">
+        <h2 class="section-title">恋みくじ</h2>
+        <p class="section-copy">答えを決めるためじゃなく、気持ちを整えるヒント。</p>
+        <div class="fortune-stage">
+          <div class="fortune-card" id="fortuneCard"><div class="tag"><span id="fortuneTagText">ひく</span><i class="seal"></i></div></div>
+        </div>
+        <div class="fortune-result" id="fortuneResult"><div class="fortune-name">今日の恋運は？</div><p>ゆっくり引いてみよう。</p></div>
+        <button class="main-button" id="fortuneButton" onclick="drawFortune()">恋みくじをひく</button>
+        <div class="dual-buttons"><button class="sub-button" onclick="drawFortune()">もう一度</button><button class="sub-button primary" onclick="startConsult('love')">相談する</button></div>
+      </div>
+    </section>
+
+    <section id="tips" class="screen">
+      <div class="back-row"><button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button></div>
+      <div class="tip-wrap">
+        <h2 class="section-title">今日の豆知識</h2>
+        <p class="section-copy">今日、ひとつだけ試してみよう。</p>
+        <div class="tip-card" id="tipCard"></div>
+        <div class="dual-buttons"><button class="sub-button" onclick="markTried()">やってみる</button><button class="sub-button primary" onclick="nextTip()">次へ</button></div>
+      </div>
+    </section>
+
+    <section id="note" class="screen">
+      <div class="back-row"><button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button></div>
+      <h2 class="section-title">ノート</h2><p class="section-copy">うまくいった言い方を残そう。</p>
+      <div class="book-list" id="bookList"></div>
+    </section>
+
+    <section id="profile" class="screen">
+      <div class="back-row"><button class="back" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>戻る</button></div>
+      <h2 class="section-title">あなたのこと</h2><p class="section-copy">MBTIやLoveType16は、あくまで補足。</p>
+      <div class="profile-card">
+        <h3>参考プロフィール</h3><p class="hint-copy">知っていれば入れてOK。タイプだけで決めつけない。</p>
+        <label class="input-label" for="mbti">MBTI（任意）</label><input class="text-input" id="mbti" placeholder="例：ENFJ" />
+        <label class="input-label" for="loveType">LoveType16（任意）</label><input class="text-input" id="loveType" placeholder="例：知っていれば入力" />
+        <div class="check-list">
+          <label class="check"><input type="checkbox" data-trait="reply"/><span><b>返事を早く確かめたくなる</b><small>不安なとき、すぐ答えが欲しくなる</small></span></label>
+          <label class="check"><input type="checkbox" data-trait="hold"/><span><b>本音を飲み込みやすい</b><small>後からモヤモヤをためやすい</small></span></label>
+          <label class="check"><input type="checkbox" data-trait="strong"/><span><b>感情が強いと、言葉も強くなる</b><small>送信・発言前に一呼吸が必要</small></span></label>
+        </div>
+        <button class="main-button" onclick="saveProfile()">保存する</button>
+      </div>
+      <div class="profile-card">
+        <h3>相談スタイルチェック</h3><p class="hint-copy">医療・心理診断ではなく、相談の使い方の目安。</p>
+        <div id="diagnosisQuestions"></div>
+        <button class="main-button" onclick="showDiagnosis()">見てみる</button>
+        <div id="diagnosisResult" class="diagnosis-result"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="メニュー">
+    <button class="nav active" data-nav="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>相談</button>
+    <button class="nav" data-nav="note" onclick="go('note')"><svg viewBox="0 0 24 24"><path d="M6 3h10a2 2 0 0 1 2 2v16H8a2 2 0 0 0-2-2ZM6 3v16a2 2 0 0 1 2-2h10"/><path d="M10 8h5M10 12h5"/></svg>ノート</button>
+    <button class="nav" data-nav="profile" onclick="go('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 3.5-6 8-6s7.2 2 8 6"/></svg>あなた</button>
+  </nav>
+  <div class="toast" id="toast"></div>
+
+<script>
+  const state={category:'love',topic:'',tipIndex:0,selectedOption:0};
+  const labels={love:'恋愛',friend:'友だち',work:'仕事'};
+  const topics={
+    love:['既読が気になる','追いLINEしたい','不満を伝えたい','相手の気持ちが不安'],
+    friend:['なんかモヤモヤ','距離を置きたい','言い方に悩む','仲直りしたい'],
+    work:['断りたい','上司に相談','ミスが怖い','シフトの相談']
+  };
+  const templates={
+    love:{
+      aruaru:'返信がない時間だけ、頭の中で悪い想像が育つやつあるある。',
+      emotions:['不安','さみしい','ちょい怒り'],
+      next:['今日は一度待つ','軽く確認する','落ち着いて本音を伝える'],
+      message:'忙しかったら全然大丈夫。落ち着いたら返事もらえたらうれしい。',
+      quote:'「私たちは現実よりも、想像の中で苦しむことが多い。」',author:'セネカ（意訳）'
+    },
+    friend:{
+      aruaru:'仲がいい相手ほど、雑に扱われた気がすると地味に引っかかるやつあるある。',
+      emotions:['モヤモヤ','悲しい','言いづらい'],
+      next:['今は少し距離を置く','軽く聞いてみる','自分の希望を伝える'],
+      message:'責めたいわけじゃないんだけど、あの時ちょっと引っかかった。今度はこうしてくれたらうれしい。',
+      quote:'「他人を変えようとするより、自分の態度を選ぶ方が確かだ。」',author:'マルクス・アウレリウス（意訳）'
+    },
+    work:{
+      aruaru:'言いづらいことほど、頭の中で何回もシミュレーションして余計に言えなくなるやつあるある。',
+      emotions:['緊張','気まずい','抱え込み'],
+      next:['結論だけ先に伝える','短く相談する','一度メモにする'],
+      message:'相談があります。いま○○で困っていて、△△について確認させてほしいです。',
+      quote:'「準備は自信をつくる。」',author:'アレクサンダー・グラハム・ベル（趣旨）'
+    }
+  };
+  const fortunes=[
+    {name:'一呼吸吉',copy:'今日は、送る前に少しだけ間を置くと◎'},
+    {name:'待ち吉',copy:'答えを急がない方が、関係が整いやすい日。'},
+    {name:'素直吉',copy:'短く、やわらかく。本音を言葉にすると◎'},
+    {name:'自分時間吉',copy:'返信を待つ間に、自分の予定をひとつ進めよう。'}
+  ];
+  const tips=[
+    {tag:'ごはん',main:'お米を炊くときは<br>氷を1〜2個',desc:'水温が下がることで、お米がゆっくり吸水しやすくなり、甘みを感じやすくなることがある。',action:'小さめの氷を <b>1〜2個だけ</b> 入れてみよう。',icon:'rice'},
+    {tag:'洗濯',main:'洗い終わったら<br>なるべく早く干す',desc:'濡れたまま置く時間が長いほど、ニオイの原因になりやすい。',action:'終わった通知がきたら <b>そのまま干す</b> を習慣に。',icon:'shirt'},
+    {tag:'スマホ',main:'スマホが濡れたら<br>すぐ充電しない',desc:'水分が残ったままの充電は、故障につながることがある。',action:'まずは電源を切って、<b>乾かしてから</b>。',icon:'phone'},
+    {tag:'台所',main:'油のついた皿は<br>先に拭き取る',desc:'洗う前にキッチンペーパーで軽く拭くと、洗剤もお湯も節約しやすい。',action:'ベタつきは <b>拭いてから洗う</b>。',icon:'plate'},
+    {tag:'睡眠',main:'朝の光を浴びると<br>体内時計が整いやすい',desc:'起きたらカーテンを開けて、数分だけ明るさを入れてみよう。',action:'まずは <b>カーテンを開ける</b> だけ。',icon:'sun'}
+  ];
+  const diagnosisQs=[
+    {q:'不安な時、どうなりやすい？',a:'すぐ答えを確かめたい',b:'少し一人で考えたい'},
+    {q:'言いたいことがある時は？',a:'その場で言葉にしやすい',b:'あとで考えてから言いたい'},
+    {q:'モヤモヤした後は？',a:'誰かに話すと整理できる',b:'メモにすると整理できる'}
+  ];
+
+  function icon(name){
+    const common='viewBox="0 0 24 24" aria-hidden="true"';
+    const icons={
+      rice:`<svg ${common}><path d="M5 18c1.5-3.5 3-5 7-5s5.5 1.5 7 5"/><path d="M8 10c1.2-1.4 2.4-2.1 4-2.1s2.8.7 4 2.1M12 4v6"/></svg>`,
+      shirt:`<svg ${common}><path d="m7 4 2 2h6l2-2 4 4-3 3v9H6v-9l-3-3 4-4Z"/><path d="M9 6 8 10m7-4 1 4"/></svg>`,
+      phone:`<svg ${common}><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 6h4M11 18h2"/></svg>`,
+      plate:`<svg ${common}><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M5 5 3 3m16 2 2-2"/></svg>`,
+      sun:`<svg ${common}><circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9 7 7m10 10 2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>`
+    };
+    return icons[name]||icons.rice;
+  }
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.nav===id || (id==='consult'&&n.dataset.nav==='home')));
+    if(id==='note') renderNotes();
+    if(id==='profile') loadProfile();
+    if(id==='tips') renderTip();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function startConsult(category){
+    state.category=category;state.topic='';state.selectedOption=0;
+    document.getElementById('consultTitle').textContent=labels[category]+'の相談';
+    document.getElementById('consultInput').value='';document.getElementById('count').textContent='0';
+    document.getElementById('resultCard').classList.remove('show');
+    renderTopics();go('consult');
+  }
+  function renderTopics(){
+    const row=document.getElementById('topicRow');row.innerHTML='';
+    topics[state.category].forEach((t,i)=>{const b=document.createElement('button');b.className='topic'+(i===0?' active':'');b.textContent=t;b.onclick=()=>{state.topic=t;row.querySelectorAll('.topic').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('consultInput').value=t+'について相談したい。';document.getElementById('count').textContent=document.getElementById('consultInput').value.length};row.appendChild(b)});
+  }
+  document.getElementById('consultInput').addEventListener('input',e=>document.getElementById('count').textContent=e.target.value.length);
+  function esc(s){return s.replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[m]))}
+  function personalHint(){
+    const p=JSON.parse(localStorage.getItem('ippuku_profile')||'{}');
+    const traits=p.traits||[];
+    if(traits.includes('reply')) return '早く答えを確かめたくなる傾向があるなら、今は少し不安が強めに出ているかも。';
+    if(traits.includes('hold')) return '本音を飲み込みやすい傾向があるなら、今回は短く希望を言葉にしてみるのもあり。';
+    if(traits.includes('strong')) return '感情が強い時は、言葉も強くなりやすいかも。送る前に一度だけ読み返してみよう。';
+    return 'タイプはあくまで補足。いま感じていることをいちばん大事にしよう。';
+  }
+  function makeAdvice(){
+    const text=document.getElementById('consultInput').value.trim();
+    if(!text){showToast('ひとことだけでも書いてみて');return}
+    const t=templates[state.category];
+    const facts=state.category==='love'?'返信や態度の変化が気になっていること':state.category==='friend'?'相手との距離感や言い方が引っかかっていること':'伝えたいことがあるのに、言い出しづらいこと';
+    const content=`
+      <div class="result-block"><div class="result-label">あるある</div><p class="result-text">${t.aruaru}</p></div>
+      <div class="result-block"><div class="result-label">いまの整理</div><p class="result-text"><b>事実：</b>${facts}<br><b>補足：</b>${personalHint()}</p><div class="emotion-row" style="margin-top:10px">${t.emotions.map(x=>`<span class="emotion">${x}</span>`).join('')}</div></div>
+      <div class="result-block"><div class="result-label">次どうする？</div><div class="option-list">${t.next.map((x,i)=>`<button class="option ${i===0?'selected':''}" onclick="selectOption(this)"><i class="dot"></i>${x}</button>`).join('')}</div></div>
+      <div class="result-block"><div class="result-label">送るなら</div><div class="message-box">${t.message}</div></div>
+      <div class="result-block"><div class="quote-box"><b>今日の言葉</b>${t.quote}<br><span style="color:#887f75">— ${t.author}</span></div></div>`;
+    document.getElementById('resultContent').innerHTML=content;
+    document.getElementById('resultCard').classList.add('show');
+    document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function selectOption(btn){btn.parentElement.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected')}
+  function saveRule(){
+    const selected=document.querySelector('.option.selected')?.textContent.trim()||'一呼吸してから考える';
+    const rules=JSON.parse(localStorage.getItem('ippuku_rules')||'[]');
+    rules.unshift({title:selected,body:'相談のあとに決めた、次の一手。',date:new Date().toLocaleDateString('ja-JP')});
+    localStorage.setItem('ippuku_rules',JSON.stringify(rules.slice(0,30)));showToast('ノートに保存したよ');
+  }
+  function drawFortune(){
+    const c=document.getElementById('fortuneCard'),r=document.getElementById('fortuneResult'),tag=document.getElementById('fortuneTagText');
+    c.classList.remove('result');c.classList.add('draw');tag.textContent='…';r.innerHTML='<div class="fortune-name">ひいてる…</div><p>一呼吸して待ってね。</p>';
+    setTimeout(()=>{const f=fortunes[Math.floor(Math.random()*fortunes.length)];c.classList.remove('draw');c.classList.add('result');tag.textContent=f.name.replace('吉','');r.innerHTML=`<div class="fortune-name">${f.name}</div><p>${f.copy}</p>`},720);
+  }
+  function renderTip(){
+    const t=tips[state.tipIndex%tips.length];
+    const card=document.getElementById('tipCard');card.classList.remove('swap');void card.offsetWidth;card.classList.add('swap');
+    card.innerHTML=`<div><div class="tip-top"><span class="tip-tag">${t.tag.toUpperCase()}</span><span class="tip-number">${String(state.tipIndex%tips.length+1).padStart(2,'0')} / ${String(tips.length).padStart(2,'0')}</span></div><div class="tip-icon">${icon(t.icon)}</div><h3 class="tip-main">${t.main}</h3><p class="tip-desc">${t.desc}</p></div><div class="tip-action"><b>今日やるなら：</b>${t.action}</div>`;
+  }
+  function nextTip(){state.tipIndex=(state.tipIndex+1)%tips.length;renderTip()}
+  function markTried(){showToast('いいね。あとで感想も残してみて。')}
+  function renderNotes(){
+    const rules=JSON.parse(localStorage.getItem('ippuku_rules')||'[]');const list=document.getElementById('bookList');
+    if(!rules.length){list.innerHTML='<div class="empty">まだ何もないよ。<br>相談のあとに「ルールに保存」を押してみて。</div>';return}
+    list.innerHTML=rules.map((r,i)=>`<div class="saved"><div><b>${esc(r.title)}</b><p>${esc(r.body)}・${esc(r.date)}</p></div><button onclick="deleteRule(${i})">消す</button></div>`).join('');
+  }
+  function deleteRule(i){const r=JSON.parse(localStorage.getItem('ippuku_rules')||'[]');r.splice(i,1);localStorage.setItem('ippuku_rules',JSON.stringify(r));renderNotes()}
+  function saveProfile(){
+    const data={mbti:document.getElementById('mbti').value.trim(),loveType:document.getElementById('loveType').value.trim(),traits:[...document.querySelectorAll('[data-trait]:checked')].map(x=>x.dataset.trait)};
+    localStorage.setItem('ippuku_profile',JSON.stringify(data));showToast('保存したよ');
+  }
+  function loadProfile(){
+    const p=JSON.parse(localStorage.getItem('ippuku_profile')||'{}');document.getElementById('mbti').value=p.mbti||'';document.getElementById('loveType').value=p.loveType||'';document.querySelectorAll('[data-trait]').forEach(x=>x.checked=(p.traits||[]).includes(x.dataset.trait));renderDiagnosis();
+  }
+  function renderDiagnosis(){
+    const el=document.getElementById('diagnosisQuestions');el.innerHTML=diagnosisQs.map((q,i)=>`<div class="diagnosis-q"><p>${i+1}. ${q.q}</p><div class="two-choice"><button class="d-choice active" data-q="${i}" data-v="a" onclick="setD(this)">${q.a}</button><button class="d-choice" data-q="${i}" data-v="b" onclick="setD(this)">${q.b}</button></div></div>`).join('');
+    document.getElementById('diagnosisResult').classList.remove('show');
+  }
+  function setD(btn){document.querySelectorAll(`[data-q="${btn.dataset.q}"]`).forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
+  function showDiagnosis(){
+    const vals=[...document.querySelectorAll('.d-choice.active')].map(x=>x.dataset.v);const fast=vals.filter(x=>x==='a').length;
+    const text=fast>=2?'気持ちが動いたら、まず誰かと話して整理しやすいタイプかも。勢いで送る前に、短い下書きを作るのが相性◎。':'自分の中で考えを整えてから話すタイプかも。考えすぎて止まりそうな時は、結論だけ先に書くのが相性◎。';
+    const out=document.getElementById('diagnosisResult');out.textContent=text;out.classList.add('show');
+  }
+  function showToast(t){const toast=document.getElementById('toast');toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2300)}
+  function resetAll(){if(!confirm('保存したノートとプロフィールを消す？'))return;localStorage.removeItem('ippuku_rules');localStorage.removeItem('ippuku_profile');showToast('リセットしたよ')}
+  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
